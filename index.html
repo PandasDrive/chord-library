@@ -101,7 +101,7 @@
         }
 
         .remove-chord {
-            background-color: rgba(0, 0, 0, 0.2);
+            background-color: rgba(0, 0, 0, 0.3);
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -112,6 +112,15 @@
             font-weight: bold;
             line-height: 1;
             flex-shrink: 0;
+            border: none;
+            color: white;
+            padding: 0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .remove-chord:hover {
+            background-color: rgba(0, 0, 0, 0.5);
         }
 
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -282,7 +291,7 @@
                 chordSelector.innerHTML = '';
                 for (const root in ALL_CHORDS) {
                     ALL_CHORDS[root].forEach(chord => {
-                        const button = document.createElement('div');
+                        const button = document.createElement('button');
                         button.className = 'chord-btn';
                         button.textContent = chord;
                         button.dataset.chord = chord;
@@ -311,7 +320,7 @@
                     const pill = document.createElement('div');
                     pill.className = 'chord-pill';
                     pill.dataset.chordName = chord;
-                    pill.innerHTML = `<span class="chord-name">${chord}</span><span class="remove-chord" data-index="${index}">×</span>`;
+                    pill.innerHTML = `<span class="chord-name">${chord}</span><button class="remove-chord" data-index="${index}" aria-label="Remove ${chord}">&times;</button>`;
                     progressionDisplay.appendChild(pill);
                 });
             };
