@@ -2,17 +2,132 @@
 <html>
 <head>
     <title>My Chord Library</title>
+    <style>
+        /* Basic CSS for layout */
+        .container {
+            display: flex;
+        }
+        .main-progression {
+            flex: 2;
+            padding: 20px;
+        }
+        .sidebar {
+            flex: 1;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .chord-options {
+            display: none; /* Initially hidden */
+        }
+    </style>
 </head>
 <body>
 
     <h1>My Chord Progression Library</h1>
 
-    <div>
-        <h2>The "Simple" Progression</h2>
-        <h4>Key of G Major</h4>
-        <p><strong>Chords:</strong> G <img src="chord-images/G_chord.png" alt="G Chord"> - C <img src="chord-images/C_chord.png" alt="C Chord"> - D <img src="chord-images/D_chord.png" alt="D Chord"></p>
-        <p><strong>Notes:</strong> A simple progression in pop and folk music.</p>
+    <div class="container">
+        <div class="main-progression">
+            <h2>Current Progression:</h2>
+            <div id="current-chords">
+                <!-- Chords will be added here -->
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <h3>Select a Chord:</h3>
+            <ul class="chord-letters">
+                <li onclick="showChords('A')">A</li>
+                <li onclick="showChords('B')">B</li>
+                <li onclick="showChords('C')">C</li>
+                <li onclick="showChords('D')">D</li>
+                <li onclick="showChords('E')">E</li>
+                <li onclick="showChords('F')">F</li>
+                <li onclick="showChords('G')">G</li>
+            </ul>
+
+            <div id="chord-options-A" class="chord-options">
+                <h4>A Chords:</h4>
+                <ul class="available-chords">
+                    <li onclick="addChord('A')">A</li>
+                    <li onclick="addChord('Am')">Am</li>
+                    <li onclick="addChord('A7')">A7</li>
+                </ul>
+            </div>
+           <div id="chord-options-B" class="chord-options">
+                <h4>B Chords:</h4>
+                <ul class="available-chords">
+                    <li onclick="addChord('B')">B</li>
+                    <li onclick="addChord('Bm')">Bm</li>
+                    <li onclick="addChord('B7')">B7</li>
+                </ul>
+            </div>
+           <div id="chord-options-C" class="chord-options">
+                <h4>C Chords:</h4>
+                <ul class="available-chords">
+                    <li onclick="addChord('C')">C</li>
+                    <li onclick="addChord('Cm')">Cm</li>
+                    <li onclick="addChord('C7')">C7</li>
+                </ul>
+            </div>
+           <div id="chord-options-D" class="chord-options">
+                <h4>D Chords:</h4>
+                <ul class="available-chords">
+                    <li onclick="addChord('D')">D</li>
+                    <li onclick="addChord('Dm')">Dm</li>
+                    <li onclick="addChord('D7')">D7</li>
+                </ul>
+            </div>
+           <div id="chord-options-E" class="chord-options">
+                <h4>E Chords:</h4>
+                <ul class="available-chords">
+                    <li onclick="addChord('E')">E</li>
+                    <li onclick="addChord('Em')">Em</li>
+                    <li onclick="addChord('E7')">E7</li>
+                </ul>
+            </div>
+           <div id="chord-options-F" class="chord-options">
+                <h4>F Chords:</h4>
+                <ul class="available-chords">
+                    <li onclick="addChord('F')">F</li>
+                    <li onclick="addChord('Fm')">Fm</li>
+                    <li onclick="addChord('F7')">F7</li>
+                </ul>
+            </div>
+           <div id="chord-options-G" class="chord-options">
+                <h4>G Chords:</h4>
+                <ul class="available-chords">
+                    <li onclick="addChord('G')">G</li>
+                    <li onclick="addChord('Gm')">Gm</li>
+                    <li onclick="addChord('G7')">G7</li>
+                </ul>
+            </div>
+        </div>
     </div>
+
+    <script>
+        // JavaScript functions (to be implemented)
+        function showChords(chordLetter) {
+            // Hide all chord options
+            let chordOptions = document.querySelectorAll('.chord-options');
+            chordOptions.forEach(option => {
+                option.style.display = 'none';
+            });
+
+            // Show the selected chord options
+            document.getElementById('chord-options-' + chordLetter).style.display = 'block';
+        }
+
+        function addChord(chord) {
+            let currentChords = document.getElementById('current-chords');
+            let newChord = document.createElement('span');
+            newChord.innerText = chord + ' ';
+            currentChords.appendChild(newChord);
+        }
+
+        function removeChord(chord) {
+            // Implement removal logic
+        }
+    </script>
 
 </body>
 </html>
