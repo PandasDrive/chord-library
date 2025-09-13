@@ -1,6 +1,8 @@
 steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/chord-diagram-project/chord-library:$COMMIT_SHA', '.']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/chord-diagram-project/chord-library:$COMMIT_SHA']
 - name: 'gcr.io/cloud-builders/gcloud'
   args: ['run', 'deploy', 'chord-library-1087945574971', '--image', 'gcr.io/chord-diagram-project/chord-library:$COMMIT_SHA', '--region', 'us-west1', '--allow-unauthenticated']
 images:
