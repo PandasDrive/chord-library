@@ -7,7 +7,6 @@
     <script src="https://unpkg.com/guitarchords@1.0.10/dist/guitarchords.min.js"></script>
 
     <style>
-        /* --- CSS Styling (Includes NEW Modal Styles) --- */
         :root {
             --bg-color: #1a1a1a;
             --surface-color: #2c2c2c;
@@ -134,7 +133,6 @@
         .saved-item-actions button { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 1.2em; margin-left: 10px; }
         .saved-item-actions button:hover { color: var(--primary-color); }
 
-        /* --- NEW: Modal Styles --- */
         .modal {
             display: none;
             position: fixed;
@@ -232,8 +230,6 @@
                 'B': ['B', 'Bm', 'B7'],
             };
             
-            // --- NEW: Chord Shape Definitions ---
-            // -1 = Muted string, 0 = Open string. Numbers are frets.
             const CHORD_DEFINITIONS = {
                 'C':    { frets: [-1, 3, 2, 0, 1, 0], fingers: [0, 3, 2, 0, 1, 0], title: 'C Major' },
                 'Cm':   { frets: [-1, 3, 5, 5, 4, 3], fingers: [0, 1, 3, 4, 2, 1], barres: [{ fromString: 5, toString: 1, fret: 3 }], title: 'C Minor' },
@@ -251,13 +247,20 @@
                 'F':    { frets: [1, 3, 3, 2, 1, 1], fingers: [1, 3, 4, 2, 1, 1], barres: [{ fromString: 6, toString: 1, fret: 1 }], title: 'F Major' },
             };
             
-            const DIATONIC_CHORDS = { /* ... (same as before) ... */ };
+            const DIATONIC_CHORDS = {
+                'C':  ['C', 'Dm', 'Em', 'F', 'G', 'Am'], 'G':  ['G', 'Am', 'Bm', 'C', 'D', 'Em'],
+                'D':  ['D', 'Em', 'F#m', 'G', 'A', 'Bm'], 'A':  ['A', 'Bm', 'C#m', 'D', 'E', 'F#m'],
+                'E':  ['E', 'F#m', 'G#m', 'A', 'B', 'C#m'], 'B':  ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m'],
+                'F#': ['F#', 'G#m', 'A#m', 'B', 'C#', 'D#m'], 'C#': ['C#', 'D#m', 'E#m', 'F#', 'G#', 'A#m'],
+                'F':  ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm'], 'Bb': ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm'],
+                'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm'], 'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm']
+            };
 
             // --- STATE ---
             let currentProgression = [];
             let savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [];
 
-            // --- DOM ELEMENTS (including NEW Modal elements) ---
+            // --- DOM ELEMENTS ---
             const chordSelector = document.getElementById('chord-selector');
             const progressionDisplay = document.getElementById('progression-display');
             const saveBtn = document.getElementById('save-btn');
@@ -271,10 +274,33 @@
             const modalDiagram = document.getElementById('modal-chord-diagram');
 
             // --- RENDER FUNCTIONS ---
+            const renderChordButtons = () => {
+                chordSelector.innerHTML = '';
+                for (const root in ALL_CHORDS) {
+                    ALL_CHORDS[root].forEach(chord => {
+                        const button = document.createElement('div');
+                        button.className = 'chord-btn';
+                        button.textContent = chord;
+                        button.dataset.chord = chord;
+                        chordSelector.appendChild(button);
+                    });
+                }
+            };
+            
+            const renderKeySelector = () => {
+                keySelector.innerHTML = '';
+                Object.keys(DIATONIC_CHORDS).forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = key;
+                    keySelector.appendChild(option);
+                });
+            };
+
             const renderProgression = () => {
                 progressionDisplay.innerHTML = '';
                 if (currentProgression.length === 0) {
-                    progressionDisplay.innerHTML = '<span class="progression-placeholder">Select chords...</span>';
+                    progressionDisplay.innerHTML = '<span class="progression-placeholder">Select chords from the right...</span>';
                     return;
                 }
                 currentProgression.forEach((chord, index) => {
@@ -285,13 +311,27 @@
                     progressionDisplay.appendChild(pill);
                 });
             };
-            
-            // Other render functions (renderChordButtons, renderKeySelector, etc.) are the same...
-            const renderChordButtons = () => { /* ... same ... */ };
-            const renderSavedProgressions = () => { /* ... same ... */ };
-            const renderKeySelector = () => { /* ... same ... */ };
 
-            // --- NEW: Modal Functions ---
+            const renderSavedProgressions = () => {
+                savedList.innerHTML = '';
+                 if (savedProgressions.length === 0) {
+                    savedList.innerHTML = '<li>No saved progressions yet.</li>';
+                    return;
+                }
+                savedProgressions.forEach((prog, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'saved-item';
+                    listItem.innerHTML = `
+                        <span class="saved-chords">${prog.join(' - ')}</span>
+                        <div class="saved-item-actions">
+                            <button data-action="load" data-index="${index}" title="Load">⬆️</button>
+                            <button data-action="delete" data-index="${index}" title="Delete">🗑️</button>
+                        </div>
+                    `;
+                    savedList.appendChild(listItem);
+                });
+            };
+
             const openChordModal = (chordName) => {
                 const definition = CHORD_DEFINITIONS[chordName];
                 if (!definition) {
@@ -299,7 +339,7 @@
                     modalDiagram.innerHTML = 'Please add this chord to the CHORD_DEFINITIONS object.';
                 } else {
                     modalTitle.textContent = definition.title;
-                    modalDiagram.innerHTML = ''; // Clear previous diagram
+                    modalDiagram.innerHTML = '';
                     const chord = new Chord(definition);
                     chord.draw('modal-chord-diagram', {
                         width: 250,
@@ -313,21 +353,63 @@
             const closeModal = () => {
                 chordModal.style.display = 'none';
             };
-
-            // --- EVENT HANDLERS & LOGIC ---
-            const addChordToProgression = (chord) => { currentProgression.push(chord); renderProgression(); };
-            const removeChordFromProgression = (index) => { currentProgression.splice(index, 1); renderProgression(); };
-            const saveCurrentProgression = () => { /* ... same ... */ };
-            const handleSavedListClick = (e) => { /* ... same ... */ };
-            const highlightSuggestedChords = () => { /* ... same ... */ };
             
+            // --- EVENT HANDLERS & LOGIC ---
+            const addChordToProgression = (chord) => {
+                currentProgression.push(chord);
+                renderProgression();
+            };
+            
+            const removeChordFromProgression = (index) => {
+                currentProgression.splice(index, 1);
+                renderProgression();
+            };
+            
+            const saveCurrentProgression = () => {
+                if (currentProgression.length > 0) {
+                    savedProgressions.push([...currentProgression]);
+                    localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions));
+                    renderSavedProgressions();
+                }
+            };
+            
+            const handleSavedListClick = (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+                
+                const action = target.dataset.action;
+                const index = parseInt(target.dataset.index);
+                
+                if (action === 'load') {
+                    currentProgression = [...savedProgressions[index]];
+                    renderProgression();
+                } else if (action === 'delete') {
+                    savedProgressions.splice(index, 1);
+                    localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions));
+                    renderSavedProgressions();
+                }
+            };
+            
+            const highlightSuggestedChords = () => {
+                const selectedKey = keySelector.value;
+                const suggested = DIATONIC_CHORDS[selectedKey] || [];
+                
+                document.querySelectorAll('.chord-btn').forEach(btn => {
+                    if (suggested.includes(btn.dataset.chord)) {
+                        btn.classList.add('suggested');
+                    } else {
+                        btn.classList.remove('suggested');
+                    }
+                });
+            };
+
             // --- INITIALIZATION ---
             renderChordButtons();
             renderKeySelector();
             renderProgression();
             renderSavedProgressions();
             
-            // --- EVENT LISTENERS (with updated listener for progressionDisplay) ---
+            // --- EVENT LISTENERS ---
             chordSelector.addEventListener('click', (e) => {
                 if (e.target.classList.contains('chord-btn')) {
                     addChordToProgression(e.target.dataset.chord);
@@ -344,11 +426,16 @@
             });
 
             saveBtn.addEventListener('click', saveCurrentProgression);
-            clearBtn.addEventListener('click', () => { currentProgression = []; renderProgression(); });
+            
+            clearBtn.addEventListener('click', () => {
+                currentProgression = [];
+                renderProgression();
+            });
+            
             suggestBtn.addEventListener('click', highlightSuggestedChords);
+            
             savedList.addEventListener('click', handleSavedListClick);
 
-            // NEW: Modal close listeners
             closeModalBtn.addEventListener('click', closeModal);
             window.addEventListener('click', (e) => {
                 if (e.target == chordModal) {
@@ -356,20 +443,6 @@
                 }
             });
         });
-
-        // The full JS functions that were shortened above for brevity
-        const DIATONIC_CHORDS = { 'C':  ['C', 'Dm', 'Em', 'F', 'G', 'Am'], 'G':  ['G', 'Am', 'Bm', 'C', 'D', 'Em'], 'D':  ['D', 'Em', 'F#m', 'G', 'A', 'Bm'], 'A':  ['A', 'Bm', 'C#m', 'D', 'E', 'F#m'], 'E':  ['E', 'F#m', 'G#m', 'A', 'B', 'C#m'], 'B':  ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m'], 'F#': ['F#', 'G#m', 'A#m', 'B', 'C#', 'D#m'], 'C#': ['C#', 'D#m', 'E#m', 'F#', 'G#', 'A#m'], 'F':  ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm'], 'Bb': ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm'], 'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm'], 'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm'] };
-        const renderChordButtons = () => { const sel = document.getElementById('chord-selector'); sel.innerHTML = ''; for (const r in ALL_CHORDS) { ALL_CHORDS[r].forEach(c => { const b = document.createElement('div'); b.className = 'chord-btn'; b.textContent = c; b.dataset.chord = c; sel.appendChild(b); }); } };
-        const renderKeySelector = () => { const sel = document.getElementById('key-selector'); sel.innerHTML = ''; Object.keys(DIATONIC_CHORDS).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = k; sel.appendChild(o); }); };
-        const saveCurrentProgression = () => { let cp=window.currentProgression, sp=window.savedProgressions; if (cp.length > 0) { sp.push([...cp]); localStorage.setItem('savedProgressions', JSON.stringify(sp)); window.renderSavedProgressions(); } };
-        const renderSavedProgressions = () => { const list = document.getElementById('saved-progressions-list'); list.innerHTML = ''; let sp = window.savedProgressions; if (sp.length === 0) { list.innerHTML = '<li>No saved progressions yet.</li>'; return; } sp.forEach((p, i) => { const li = document.createElement('li'); li.className = 'saved-item'; li.innerHTML = `<span class="saved-chords">${p.join(' - ')}</span><div class="saved-item-actions"><button data-action="load" data-index="${i}" title="Load">⬆️</button><button data-action="delete" data-index="${i}" title="Delete">🗑️</button></div>`; list.appendChild(li); }); };
-        const handleSavedListClick = (e) => { const t = e.target.closest('button'); if (!t) return; const a = t.dataset.action, i = parseInt(t.dataset.index), sp = window.savedProgressions; if (a === 'load') { window.currentProgression = [...sp[i]]; window.renderProgression(); } else if (a === 'delete') { sp.splice(i, 1); localStorage.setItem('savedProgressions', JSON.stringify(sp)); renderSavedProgressions(); } };
-        const highlightSuggestedChords = () => { const k = document.getElementById('key-selector').value; const s = DIATONIC_CHORDS[k] || []; document.querySelectorAll('.chord-btn').forEach(b => { if (s.includes(b.dataset.chord)) b.classList.add('suggested'); else b.classList.remove('suggested'); }); };
-        // Expose functions to global scope for the inline event handlers in the shortened code.
-        window.currentProgression = [];
-        window.savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [];
-        window.renderSavedProgressions = renderSavedProgressions;
-        window.renderProgression = () => { /* Dummy for init, gets overwritten */ };
     </script>
 </body>
 </html>
