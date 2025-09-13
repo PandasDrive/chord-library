@@ -1,133 +1,424 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>My Chord Library</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Chord Progression Builder</title>
     <style>
-        /* Basic CSS for layout */
-        .container {
+        /* --- CSS Styling --- */
+        :root {
+            --bg-color: #1a1a1a;
+            --surface-color: #2c2c2c;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --text-color: #f0f0f0;
+            --subtle-text: #a0a0a0;
+            --border-color: #444;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --highlight-color: rgba(40, 167, 69, 0.3); /* Green highlight for suggested chords */
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
             display: flex;
+            justify-content: center;
         }
-        .main-progression {
-            flex: 2;
+
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .main-content, .sidebar {
+            background-color: var(--surface-color);
+            border-radius: 8px;
             padding: 20px;
+            border: 1px solid var(--border-color);
         }
-        .sidebar {
-            flex: 1;
-            padding: 20px;
-            background-color: #f0f0f0;
+
+        h1, h2, h3 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
         }
-        .chord-options {
-            display: none; /* Initially hidden */
+
+        .progression-display {
+            background-color: var(--bg-color);
+            min-height: 80px;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .progression-placeholder {
+            color: var(--subtle-text);
+            font-style: italic;
+        }
+
+        .chord-pill {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .chord-pill:hover {
+             background-color: var(--primary-hover);
+        }
+
+        .remove-chord {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-save { background-color: var(--success-color); color: white; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-clear { background-color: var(--danger-color); color: white; }
+        .btn-clear:hover { background-color: #c82333; }
+        .btn-suggest { background-color: #6c757d; color: white; }
+        .btn-suggest:hover { background-color: #5a6268; }
+
+        .key-selector-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        #key-selector {
+            padding: 8px;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            border: 1px solid var(--border-color);
+        }
+
+        .chord-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+        }
+
+        .chord-btn {
+            background-color: #444;
+            color: var(--text-color);
+            padding: 12px 0;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .chord-btn.suggested {
+            background-color: var(--highlight-color);
+            border: 1px solid var(--success-color);
+            box-shadow: 0 0 10px var(--highlight-color);
+        }
+
+        .chord-btn:hover {
+            background-color: #555;
+            transform: translateY(-2px);
+        }
+
+        .saved-progressions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .saved-item {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .saved-chords {
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+
+        .saved-item-actions button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-left: 10px;
+        }
+        .saved-item-actions button:hover {
+            color: var(--primary-color);
         }
     </style>
 </head>
 <body>
 
-    <h1>My Chord Progression Library</h1>
+    <div class="app-container">
+        <main class="main-content">
+            <h2>Current Progression</h2>
+            <div id="progression-display" class="progression-display">
+                <span class="progression-placeholder">Select chords from the right...</span>
+            </div>
 
-    <div class="container">
-        <div class="main-progression">
-            <h2>Current Progression:</h2>
-            <div id="current-chords">
-                <!-- Chords will be added here -->
+            <div class="controls">
+                <button id="save-btn" class="btn btn-save">💾 Save Progression</button>
+                <button id="clear-btn" class="btn btn-clear">🗑️ Clear</button>
             </div>
-        </div>
+            
+            <hr>
 
-        <div class="sidebar">
-            <h3>Select a Chord:</h3>
-            <ul class="chord-letters">
-                <li onclick="showChords('A')">A</li>
-                <li onclick="showChords('B')">B</li>
-                <li onclick="showChords('C')">C</li>
-                <li onclick="showChords('D')">D</li>
-                <li onclick="showChords('E')">E</li>
-                <li onclick="showChords('F')">F</li>
-                <li onclick="showChords('G')">G</li>
-            </ul>
+            <h2>Saved Progressions</h2>
+            <ul id="saved-progressions-list" class="saved-progressions-list">
+                </ul>
+        </main>
 
-            <div id="chord-options-A" class="chord-options">
-                <h4>A Chords:</h4>
-                <ul class="available-chords">
-                    <li onclick="addChord('A')">A</li>
-                    <li onclick="addChord('Am')">Am</li>
-                    <li onclick="addChord('A7')">A7</li>
-                </ul>
+        <aside class="sidebar">
+            <h3>Chord Selector</h3>
+            <div class="key-selector-container">
+                <label for="key-selector">Key:</label>
+                <select id="key-selector">
+                    </select>
+                <button id="suggest-btn" class="btn btn-suggest">Suggest Chords</button>
             </div>
-           <div id="chord-options-B" class="chord-options">
-                <h4>B Chords:</h4>
-                <ul class="available-chords">
-                    <li onclick="addChord('B')">B</li>
-                    <li onclick="addChord('Bm')">Bm</li>
-                    <li onclick="addChord('B7')">B7</li>
-                </ul>
-            </div>
-           <div id="chord-options-C" class="chord-options">
-                <h4>C Chords:</h4>
-                <ul class="available-chords">
-                    <li onclick="addChord('C')">C</li>
-                    <li onclick="addChord('Cm')">Cm</li>
-                    <li onclick="addChord('C7')">C7</li>
-                </ul>
-            </div>
-           <div id="chord-options-D" class="chord-options">
-                <h4>D Chords:</h4>
-                <ul class="available-chords">
-                    <li onclick="addChord('D')">D</li>
-                    <li onclick="addChord('Dm')">Dm</li>
-                    <li onclick="addChord('D7')">D7</li>
-                </ul>
-            </div>
-           <div id="chord-options-E" class="chord-options">
-                <h4>E Chords:</h4>
-                <ul class="available-chords">
-                    <li onclick="addChord('E')">E</li>
-                    <li onclick="addChord('Em')">Em</li>
-                    <li onclick="addChord('E7')">E7</li>
-                </ul>
-            </div>
-           <div id="chord-options-F" class="chord-options">
-                <h4>F Chords:</h4>
-                <ul class="available-chords">
-                    <li onclick="addChord('F')">F</li>
-                    <li onclick="addChord('Fm')">Fm</li>
-                    <li onclick="addChord('F7')">F7</li>
-                </ul>
-            </div>
-           <div id="chord-options-G" class="chord-options">
-                <h4>G Chords:</h4>
-                <ul class="available-chords">
-                    <li onclick="addChord('G')">G</li>
-                    <li onclick="addChord('Gm')">Gm</li>
-                    <li onclick="addChord('G7')">G7</li>
-                </ul>
-            </div>
-        </div>
+            <div id="chord-selector" class="chord-selector">
+                </div>
+        </aside>
     </div>
 
     <script>
-        // JavaScript functions (to be implemented)
-        function showChords(chordLetter) {
-            // Hide all chord options
-            let chordOptions = document.querySelectorAll('.chord-options');
-            chordOptions.forEach(option => {
-                option.style.display = 'none';
+        // --- JavaScript Logic ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DATA ---
+            const ALL_CHORDS = {
+                'C': ['C', 'Cm', 'C7', 'Cmaj7', 'Cdim'], 'C#': ['C#', 'C#m', 'C#7'],
+                'D': ['D', 'Dm', 'D7', 'Dmaj7'], 'Eb': ['Eb', 'Ebm', 'Eb7'],
+                'E': ['E', 'Em', 'E7', 'Emaj7'],
+                'F': ['F', 'Fm', 'F7', 'Fmaj7'], 'F#': ['F#', 'F#m', 'F#7'],
+                'G': ['G', 'Gm', 'G7', 'Gmaj7'], 'G#': ['G#', 'G#m', 'G#7'],
+                'A': ['A', 'Am', 'A7', 'Amaj7'], 'Bb': ['Bb', 'Bbm', 'Bb7'],
+                'B': ['B', 'Bm', 'B7'],
+            };
+            
+            // Diatonic chords for each major key (I, ii, iii, IV, V, vi, vii°)
+            const DIATONIC_CHORDS = {
+                'C':  ['C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim'],
+                'G':  ['G', 'Am', 'Bm', 'C', 'D', 'Em', 'F#dim'],
+                'D':  ['D', 'Em', 'F#m', 'G', 'A', 'Bm', 'C#dim'],
+                'A':  ['A', 'Bm', 'C#m', 'D', 'E', 'F#m', 'G#dim'],
+                'E':  ['E', 'F#m', 'G#m', 'A', 'B', 'C#m', 'D#dim'],
+                'B':  ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m', 'A#dim'],
+                'F#': ['F#', 'G#m', 'A#m', 'B', 'C#', 'D#m', 'E#dim'],
+                'C#': ['C#', 'D#m', 'E#m', 'F#', 'G#', 'A#m', 'B#dim'],
+                'F':  ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm', 'Edim'],
+                'Bb': ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm', 'Adim'],
+                'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm', 'Ddim'],
+                'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm', 'Gdim'],
+            };
+
+            // --- STATE ---
+            let currentProgression = [];
+            let savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [];
+
+            // --- DOM ELEMENTS ---
+            const chordSelector = document.getElementById('chord-selector');
+            const progressionDisplay = document.getElementById('progression-display');
+            const saveBtn = document.getElementById('save-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const savedList = document.getElementById('saved-progressions-list');
+            const keySelector = document.getElementById('key-selector');
+            const suggestBtn = document.getElementById('suggest-btn');
+
+            // --- RENDER FUNCTIONS ---
+            const renderChordButtons = () => {
+                chordSelector.innerHTML = '';
+                for (const root in ALL_CHORDS) {
+                    ALL_CHORDS[root].forEach(chord => {
+                        const button = document.createElement('div');
+                        button.className = 'chord-btn';
+                        button.textContent = chord;
+                        button.dataset.chord = chord;
+                        chordSelector.appendChild(button);
+                    });
+                }
+            };
+            
+            const renderKeySelector = () => {
+                keySelector.innerHTML = '';
+                Object.keys(DIATONIC_CHORDS).forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = key;
+                    keySelector.appendChild(option);
+                });
+            };
+
+            const renderProgression = () => {
+                progressionDisplay.innerHTML = '';
+                if (currentProgression.length === 0) {
+                    progressionDisplay.innerHTML = '<span class="progression-placeholder">Select chords from the right...</span>';
+                    return;
+                }
+                currentProgression.forEach((chord, index) => {
+                    const pill = document.createElement('div');
+                    pill.className = 'chord-pill';
+                    pill.innerHTML = `<span>${chord}</span><span class="remove-chord" data-index="${index}">×</span>`;
+                    progressionDisplay.appendChild(pill);
+                });
+            };
+
+            const renderSavedProgressions = () => {
+                savedList.innerHTML = '';
+                 if (savedProgressions.length === 0) {
+                    savedList.innerHTML = '<li>No saved progressions yet.</li>';
+                    return;
+                }
+                savedProgressions.forEach((prog, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'saved-item';
+                    listItem.innerHTML = `
+                        <span class="saved-chords">${prog.join(' - ')}</span>
+                        <div class="saved-item-actions">
+                            <button data-action="load" data-index="${index}" title="Load">⬆️</button>
+                            <button data-action="delete" data-index="${index}" title="Delete">🗑️</button>
+                        </div>
+                    `;
+                    savedList.appendChild(listItem);
+                });
+            };
+            
+            // --- EVENT HANDLERS & LOGIC ---
+            const addChordToProgression = (chord) => {
+                currentProgression.push(chord);
+                renderProgression();
+            };
+            
+            const removeChordFromProgression = (index) => {
+                currentProgression.splice(index, 1);
+                renderProgression();
+            };
+            
+            const saveCurrentProgression = () => {
+                if (currentProgression.length > 0) {
+                    savedProgressions.push([...currentProgression]);
+                    localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions));
+                    renderSavedProgressions();
+                }
+            };
+            
+            const handleSavedListClick = (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+                
+                const action = target.dataset.action;
+                const index = parseInt(target.dataset.index);
+                
+                if (action === 'load') {
+                    currentProgression = [...savedProgressions[index]];
+                    renderProgression();
+                } else if (action === 'delete') {
+                    savedProgressions.splice(index, 1);
+                    localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions));
+                    renderSavedProgressions();
+                }
+            };
+            
+            const highlightSuggestedChords = () => {
+                const selectedKey = keySelector.value;
+                const suggested = DIATONIC_CHORDS[selectedKey] || [];
+                
+                document.querySelectorAll('.chord-btn').forEach(btn => {
+                    if (suggested.includes(btn.dataset.chord)) {
+                        btn.classList.add('suggested');
+                    } else {
+                        btn.classList.remove('suggested');
+                    }
+                });
+            };
+
+            // --- INITIALIZATION ---
+            renderChordButtons();
+            renderKeySelector();
+            renderProgression();
+            renderSavedProgressions();
+            
+            // --- EVENT LISTENERS ---
+            chordSelector.addEventListener('click', (e) => {
+                if (e.target.classList.contains('chord-btn')) {
+                    addChordToProgression(e.target.dataset.chord);
+                }
             });
 
-            // Show the selected chord options
-            document.getElementById('chord-options-' + chordLetter).style.display = 'block';
-        }
+            progressionDisplay.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-chord')) {
+                    removeChordFromProgression(parseInt(e.target.dataset.index));
+                }
+            });
 
-        function addChord(chord) {
-            let currentChords = document.getElementById('current-chords');
-            let newChord = document.createElement('span');
-            newChord.innerText = chord + ' ';
-            currentChords.appendChild(newChord);
-        }
-
-        function removeChord(chord) {
-            // Implement removal logic
-        }
+            saveBtn.addEventListener('click', saveCurrentProgression);
+            
+            clearBtn.addEventListener('click', () => {
+                currentProgression = [];
+                renderProgression();
+            });
+            
+            suggestBtn.addEventListener('click', highlightSuggestedChords);
+            
+            savedList.addEventListener('click', handleSavedListClick);
+        });
     </script>
-
 </body>
 </html>
