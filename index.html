@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Chord Progression Builder</title>
     
-    <script>
-    !function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.Chord=t():e.Chord=t()}(window,function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=0)}([function(e,t,r){"use strict";r.r(t);var n={frets:[],fingers:[],barres:[],tuning:[],position:1,name:void 0,enharmonic:!1},o=function(){function e(e){if(this.settings=Object.assign({},n,e),this.settings.name)this.settings.enharmonic?this.settings.name=this.getEnharmonicName():this.settings.name=this.settings.name.replace("b","#"):this.settings.name=this.getChordName();else if(this.settings.frets.length>0){var t=this.getChordName();this.settings.enharmonic?this.settings.name=this.getEnharmonicName(t):this.settings.name=t}this.drawer=this.getDrawer()}return e.prototype.getDrawer=function(){var e={A:5,B:5,C:5,D:5,E:5,F:5,G:5,Ab:4,Bb:4,Db:4,Eb:4,Gb:4,W:5,H:5,Q:5},t=this.settings.tuning.length>0?this.settings.tuning.length:6,r=Math.max.apply(Math,this.settings.frets.filter(function(e){return-1!==e})),n=Math.min.apply(Math,this.settings.frets.filter(function(e){return-1!==e}));this.settings.position=1===n?1:n;var o=0,i=0;return this.settings.name?i=this.settings.name.length:o=Object.keys(e).reduce(function(t,r){var n=e[r];return t+n},0),{width:this.settings.width||100,height:this.settings.height||100,circle:this.settings.circle||!0,frets:r>4?r:4,position:n>1?n:1,positionText:n>1,strings:t,lineWidth:1,stringWidth:1,fretWidth:1,style:this.settings.style||"normal",defaultColor:this.settings.color||"#000",bgColor:this.settings.bgColor||"none",font:this.settings.font||"10px Arial",dotSize:i>0?Math.ceil(o/i):5,dotColor:this.settings.dotColor||this.settings.color||"#000",stroke:this.settings.stroke||!1}},e.prototype.getChordName=function(){for(var e=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],t=this.settings.tuning.length>0?this.settings.tuning:this.settings.capo?["E","A","D","G","B","E"].slice(this.settings.capo):["E","A","D","G","B","E"],r=[],n=0;n<t.length;n++){var o=this.settings.frets[n];-1!==o&&r.push(e[(e.indexOf(t[n].replace("b","#"))+o)%12])}return r=r.filter(function(e,t){return r.indexOf(e)===t}),r.join()},e.prototype.getEnharmonicName=function(e){var t=e||this.settings.name,r={"C#":"Db","D#":"Eb","F#":"Gb","G#":"Ab","A#":"Bb"};return Object.keys(r).forEach(function(e){t=t.replace(e,r[e])}),t},e.prototype.draw=function(e,t){var r=Object.assign(this.getDrawer(),t);document.getElementById(e).innerHTML="";var n=r.width,o=r.height,i=document.createElementNS("http://www.w3.org/2000/svg","svg");i.setAttributeNS(null,"width",n),i.setAttributeNS(null,"height",o),i.setAttributeNS(null,"style","background-color: "+r.bgColor+";"),document.getElementById(e).appendChild(i);var s=r.strings,a=r.frets,h=20,c=r.stringWidth,l=r.fretWidth,g=r.lineWidth,u=r.dotSize,f=r.positionText,d=r.font.split(" "),p=d[0],m=d[d.length-1],y=document.createElementNS("http://www.w3.org/2000/svg","g");if(f){var v=document.createElementNS("http://www.w3.org/2000/svg","text");v.setAttribute("x",2),v.setAttribute("y",h+parseFloat(p)/2),v.setAttribute("font-family",m),v.setAttribute("font-size",p),v.setAttribute("fill",r.defaultColor),v.appendChild(document.createTextNode(r.position)),y.appendChild(v)}for(var b=0;b<s;b++){var k=document.createElementNS("http://www.w3.org/2000/svg","line");k.setAttribute("x1",10+b*h),k.setAttribute("y1",10),k.setAttribute("x2",10+b*h),k.setAttribute("y2",h*a),k.setAttribute("style","stroke:"+r.defaultColor+";stroke-width:"+c),y.appendChild(k)}for(b=0;b<a;b++){k=document.createElementNS("http://www.w3.org/2000/svg","line");var x=b*h+10,S=1===b?g:l;k.setAttribute("x1",10),k.setAttribute("y1",x),k.setAttribute("x2",10+h*(s-1)),k.setAttribute("y2",x),k.setAttribute("style","stroke:"+r.defaultColor+";stroke-width:"+S),y.appendChild(k)}i.appendChild(y);var w=document.createElementNS("http://www.w3.org/2000/svg","g");for(b=0;b<this.settings.fingers.length;b++){var N=this.settings.fingers[b];if(N>0){var A=10+(b-1)*h,C=h*(this.settings.frets[b-1]-1)+h/2+10,F=document.createElementNS("http://www.w3.org/2000/svg","circle");F.setAttribute("cx",A),F.setAttribute("cy",C),F.setAttribute("r",u),F.setAttribute("fill",r.dotColor),w.appendChild(F);var B=document.createElementNS("http://www.w3.org/2000/svg","text");B.setAttribute("x",A),B.setAttribute("y",C+3),B.setAttribute("text-anchor","middle"),B.setAttribute("font-family",m),B.setAttribute("font-size",p),B.setAttribute("fill",r.bgColor),B.appendChild(document.createTextNode(N)),w.appendChild(B)}}for(b=0;b<this.settings.frets.length;b++){var M=this.settings.frets[b];if(0===M){F=document.createElementNS("http://www.w3.org/2000/svg","circle");A=10+b*h,C=5;r.stroke?(F.setAttribute("stroke",r.defaultColor),F.setAttribute("stroke-width",1)):F.setAttribute("fill",r.dotColor),F.setAttribute("cx",A),F.setAttribute("cy",C),F.setAttribute("r",4),w.appendChild(F)}if(-1===M){A=10+b*h,C=5;var E=document.createElementNS("http://www.w3.org/2000/svg","line");E.setAttribute("x1",A-4),E.setAttribute("y1",C-4),E.setAttribute("x2",A+4),E.setAttribute("y2",C+4),E.setAttribute("style","stroke:"+r.defaultColor+";stroke-width:"+g),w.appendChild(E);var O=document.createElementNS("http://www.w3.org/2000/svg","line");O.setAttribute("x1",A-4),O.setAttribute("y1",C+4),O.setAttribute("x2",A+4),O.setAttribute("y2",C-4),O.setAttribute("style","stroke:"+r.defaultColor+";stroke-width:"+g),w.appendChild(O)}}for(b=0;b<this.settings.barres.length;b++){var P=this.settings.barres[b],j=P.fromString,D=P.toString,T=P.fret,L=10+(j-1)*h,z=(D-j)*h+L,G=T*h-h/2+10;F=document.createElementNS("http://www.w3.org/2000/svg","rect");F.setAttribute("x",L),F.setAttribute("y",G-u),F.setAttribute("width",z-L),F.setAttribute("height",2*u),F.setAttribute("rx",u),F.setAttribute("ry",u),F.setAttribute("fill",r.dotColor),w.appendChild(F)}i.appendChild(w)},e}();t.default=o}])});
-    </script>
-
     <style>
         :root {
             --bg-color: #1a1a1a;
@@ -182,6 +178,28 @@
             position: relative;
             animation: slideIn 0.3s;
         }
+        
+        #add-chord-modal .modal-content {
+            max-width: 450px;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"], .form-group input[type="number"] {
+            width: 95%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
 
         .close-button {
             color: #aaa;
@@ -232,6 +250,7 @@
                 <label for="key-selector">Key:</label>
                 <select id="key-selector"></select>
                 <button id="suggest-btn" class="btn btn-suggest">Suggest Chords</button>
+                <button id="add-chord-btn" class="btn" style="margin-left: auto;">➕ New Chord</button>
             </div>
             <div id="chord-selector" class="chord-selector"></div>
         </aside>
@@ -245,46 +264,47 @@
         </div>
     </div>
 
+    <div id="add-chord-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-add-modal-btn" class="close-button">&times;</span>
+            <h2>Add New Chord</h2>
+            <form id="add-chord-form">
+                <div class="form-group">
+                    <label for="new-chord-name">Chord Name (e.g., "Gsus4")</label>
+                    <input type="text" id="new-chord-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-chord-title">Display Title (e.g., "G suspended 4th")</label>
+                    <input type="text" id="new-chord-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Frets (E-A-D-G-B-e) (-1 for muted)</label>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="number" class="fret-input" required value="-1" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label><input type="checkbox" id="has-barre"> Has Barre?</label>
+                </div>
+                <div id="barre-details" style="display: none; border-left: 2px solid var(--primary-color); padding-left: 15px;">
+                    <div class="form-group"><label for="barre-fret">Barre Fret:</label><input type="number" id="barre-fret" min="1"></div>
+                    <div class="form-group"><label for="barre-from">From String (e.g., 6):</label><input type="number" id="barre-from" min="1" max="6"></div>
+                    <div class="form-group"><label for="barre-to">To String (e.g., 1):</label><input type="number" id="barre-to" min="1" max="6"></div>
+                </div>
+                <button type="submit" class="btn btn-save" style="width: 100%;">💾 Save Chord</button>
+                <p id="add-chord-error" style="color: var(--danger-color); text-align: center;"></p>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- DATA ---
-            const ALL_CHORDS = {
-                'C': ['C', 'Cm', 'C7', 'Cmaj7'], 'C#': ['C#', 'C#m', 'C#7'],
-                'D': ['D', 'Dm', 'D7', 'Dmaj7'], 'Eb': ['Eb', 'Ebm', 'Eb7'],
-                'E': ['E', 'Em', 'E7', 'Emaj7'],
-                'F': ['F', 'Fm', 'F7', 'Fmaj7'], 'F#': ['F#', 'F#m', 'F#7'],
-                'G': ['G', 'Gm', 'G7', 'Gmaj7'], 'G#': ['G#', 'G#m', 'G#7'],
-                'A': ['A', 'Am', 'A7', 'Amaj7'], 'Bb': ['Bb', 'Bbm', 'Bb7'],
-                'B': ['B', 'Bm', 'B7'],
-            };
-            
-            const CHORD_DEFINITIONS = {
-                'C':    { frets: [-1, 3, 2, 0, 1, 0], fingers: [0, 3, 2, 0, 1, 0], title: 'C Major' },
-                'Cm':   { frets: [-1, 3, 5, 5, 4, 3], fingers: [0, 1, 3, 4, 2, 1], barres: [{ fromString: 5, toString: 1, fret: 3 }], title: 'C Minor' },
-                'C7':   { frets: [-1, 3, 2, 3, 1, 0], fingers: [0, 3, 2, 4, 1, 0], title: 'C7' },
-                'Cmaj7':{ frets: [-1, 3, 2, 0, 0, 0], fingers: [0, 2, 1, 0, 0, 0], title: 'C Major 7th' },
-                'G':    { frets: [3, 2, 0, 0, 0, 3], fingers: [2, 1, 0, 0, 0, 3], title: 'G Major' },
-                'G7':   { frets: [3, 2, 0, 0, 0, 1], fingers: [3, 2, 0, 0, 0, 1], title: 'G7' },
-                'Gmaj7':{ frets: [3, 2, 0, 0, 0, 2], fingers: [2, 1, 0, 0, 0, 3], title: 'G Major 7th' },
-                'Am':   { frets: [-1, 0, 2, 2, 1, 0], fingers: [0, 0, 2, 3, 1, 0], title: 'A Minor' },
-                'A':    { frets: [-1, 0, 2, 2, 2, 0], fingers: [0, 0, 1, 2, 3, 0], title: 'A Major' },
-                'A7':   { frets: [-1, 0, 2, 0, 2, 0], fingers: [0, 0, 2, 0, 3, 0], title: 'A7' },
-                'Amaj7':{ frets: [-1, 0, 2, 1, 2, 0], fingers: [0, 0, 2, 1, 3, 0], title: 'A Major 7th' },
-                'E':    { frets: [0, 2, 2, 1, 0, 0], fingers: [0, 2, 3, 1, 0, 0], title: 'E Major' },
-                'Em':   { frets: [0, 2, 2, 0, 0, 0], fingers: [0, 2, 3, 0, 0, 0], title: 'E Minor' },
-                'E7':   { frets: [0, 2, 0, 1, 0, 0], fingers: [0, 2, 0, 1, 0, 0], title: 'E7' },
-                'Emaj7':{ frets: [0, 2, 1, 1, 0, 0], fingers: [0, 2, 1, 1, 0, 0], title: 'E Major 7th' },
-                'D':    { frets: [-1, -1, 0, 2, 3, 2], fingers: [0, 0, 0, 1, 3, 2], title: 'D Major' },
-                'Dm':   { frets: [-1, -1, 0, 2, 3, 1], fingers: [0, 0, 0, 2, 3, 1], title: 'D Minor' },
-                'D7':   { frets: [-1, -1, 0, 2, 1, 2], fingers: [0, 0, 0, 2, 1, 3], title: 'D7' },
-                'Dmaj7':{ frets: [-1, -1, 0, 2, 2, 2], fingers: [0, 0, 0, 1, 2, 3], title: 'D Major 7th' },
-                'F':    { frets: [1, 3, 3, 2, 1, 1], fingers: [1, 3, 4, 2, 1, 1], barres: [{ fromString: 6, toString: 1, fret: 1 }], title: 'F Major' },
-                'Fmaj7':{ frets: [1, 3, 2, 2, 1, 1], fingers: [1, 4, 2, 3, 1, 1], barres: [{ fromString: 6, toString: 1, fret: 1 }], title: 'F Major 7th' },
-                'B':    { frets: [-1, 2, 4, 4, 4, 2], fingers: [0, 1, 2, 3, 4, 1], barres: [{ fromString: 5, toString: 1, fret: 2 }], title: 'B Major' },
-                'Bm':   { frets: [-1, 2, 4, 4, 3, 2], fingers: [0, 1, 3, 4, 2, 1], barres: [{ fromString: 5, toString: 1, fret: 2 }], title: 'B Minor' },
-                'B7':   { frets: [-1, 2, 1, 2, 0, 2], fingers: [0, 2, 1, 3, 0, 4], title: 'B7' },
-            };
-            
+            // --- STATE & DATA ---
             const DIATONIC_CHORDS = {
                 'C':  ['C', 'Dm', 'Em', 'F', 'G', 'Am'], 'G':  ['G', 'Am', 'Bm', 'C', 'D', 'Em'],
                 'D':  ['D', 'Em', 'F#m', 'G', 'A', 'Bm'], 'A':  ['A', 'Bm', 'C#m', 'D', 'E', 'F#m'],
@@ -296,6 +316,7 @@
 
             let currentProgression = [];
             let savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [];
+            let allChordsData = {};
 
             const chordSelector = document.getElementById('chord-selector');
             const progressionDisplay = document.getElementById('progression-display');
@@ -308,18 +329,22 @@
             const closeModalBtn = document.getElementById('close-modal-btn');
             const modalTitle = document.getElementById('modal-chord-title');
             const modalDiagram = document.getElementById('modal-chord-diagram');
+            const addChordBtn = document.getElementById('add-chord-btn');
+            const addChordModal = document.getElementById('add-chord-modal');
+            const closeAddModalBtn = document.getElementById('close-add-modal-btn');
+            const addChordForm = document.getElementById('add-chord-form');
+            const addChordError = document.getElementById('add-chord-error');
 
             const renderChordButtons = () => {
                 chordSelector.innerHTML = '';
-                for (const root in ALL_CHORDS) {
-                    ALL_CHORDS[root].forEach(chord => {
-                        const button = document.createElement('button');
-                        button.className = 'chord-btn';
-                        button.textContent = chord;
-                        button.dataset.chord = chord;
-                        chordSelector.appendChild(button);
-                    });
-                }
+                const chordNames = Object.keys(allChordsData).sort();
+                chordNames.forEach(chordName => {
+                    const button = document.createElement('button');
+                    button.className = 'chord-btn';
+                    button.textContent = chordName;
+                    button.dataset.chord = chordName;
+                    chordSelector.appendChild(button);
+                });
             };
             
             const renderKeySelector = () => {
@@ -367,23 +392,38 @@
                 });
             };
 
-            const openChordModal = (chordName) => {
-                const definition = CHORD_DEFINITIONS[chordName];
-                if (!definition) {
-                    modalTitle.textContent = `${chordName} (No diagram available)`;
-                    modalDiagram.innerHTML = 'Please add this chord to the CHORD_DEFINITIONS object.';
-                } else {
-                    modalTitle.textContent = definition.title;
-                    modalDiagram.innerHTML = '';
-                    const chord = new Chord(definition);
-                    chord.draw('modal-chord-diagram', {
-                        width: 250,
-                        height: 300,
-                        style: 'normal',
-                        tuning: ["E", "A", "D", "G", "B", "E"]
-                    });
-                }
+            const openChordModal = async (chordName) => {
+                const definition = allChordsData[chordName];
+                modalTitle.textContent = definition ? definition.title : chordName;
+                modalDiagram.innerHTML = 'Loading...';
                 chordModal.style.display = 'block';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('chord', chordName);
+
+                    const response = await fetch('/api/chord-diagram', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API Error: ${errorText || response.statusText}`);
+                    }
+
+                    const imageBlob = await response.blob();
+                    const imageUrl = URL.createObjectURL(imageBlob);
+                    
+                    modalDiagram.innerHTML = '';
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = `Chord diagram for ${chordName}`;
+                    modalDiagram.appendChild(img);
+                } catch (error) {
+                    console.error('Error fetching chord diagram:', error);
+                    modalDiagram.innerHTML = `Could not load diagram. ${error.message}`;
+                }
             };
 
             const closeModal = () => {
@@ -438,11 +478,24 @@
                 });
             };
 
-            renderChordButtons();
-            renderKeySelector();
-            renderProgression();
-            renderSavedProgressions();
+            const initializeApp = async () => {
+                try {
+                    const response = await fetch('/api/chords');
+                    if (!response.ok) throw new Error('Failed to load chords from server.');
+                    allChordsData = await response.json();
+                    
+                    renderChordButtons();
+                    renderKeySelector();
+                    renderProgression();
+                    renderSavedProgressions();
+                } catch (error) {
+                    console.error("Initialization failed:", error);
+                    chordSelector.innerHTML = `<p style="color: var(--danger-color);">Could not load chords.</p>`;
+                }
+            };
             
+            // --- EVENT LISTENERS ---
+
             chordSelector.addEventListener('click', (e) => {
                 if (e.target.classList.contains('chord-btn')) {
                     addChordToProgression(e.target.dataset.chord);
@@ -475,6 +528,57 @@
                     closeModal();
                 }
             });
+
+            addChordBtn.addEventListener('click', () => {
+                addChordForm.reset();
+                addChordError.textContent = '';
+                document.getElementById('barre-details').style.display = 'none';
+                addChordModal.style.display = 'block';
+            });
+
+            closeAddModalBtn.addEventListener('click', () => addChordModal.style.display = 'none');
+
+            document.getElementById('has-barre').addEventListener('change', (e) => {
+                document.getElementById('barre-details').style.display = e.target.checked ? 'block' : 'none';
+            });
+
+            addChordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                addChordError.textContent = '';
+
+                const frets = Array.from(document.querySelectorAll('.fret-input')).map(input => parseInt(input.value, 10));
+                const barres = [];
+                if (document.getElementById('has-barre').checked) {
+                    barres.push({
+                        fret: parseInt(document.getElementById('barre-fret').value, 10),
+                        fromString: parseInt(document.getElementById('barre-from').value, 10),
+                        toString: parseInt(document.getElementById('barre-to').value, 10)
+                    });
+                }
+
+                const payload = {
+                    name: document.getElementById('new-chord-name').value,
+                    title: document.getElementById('new-chord-title').value,
+                    frets: frets,
+                    barres: barres
+                };
+
+                try {
+                    const response = await fetch('/api/chords', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(await response.text());
+                    
+                    addChordModal.style.display = 'none';
+                    await initializeApp(); // Re-fetch all chords including the new one
+                } catch (error) {
+                    addChordError.textContent = `Error: ${error.message}`;
+                }
+            });
+
+            initializeApp();
         });
     </script>
 </body>
