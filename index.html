@@ -353,7 +353,7 @@
                 } else {
                     modalTitle.textContent = definition.title;
                     modalDiagram.innerHTML = '';
-                    const chord = new Chord(definition);
+                    const chord = new Chord.default(definition);
                     chord.draw('modal-chord-diagram', {
                         width: 250,
                         height: 300,
