@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modern Chord Progression Builder</title>
-    <script src="https://unpkg.com/guitarchords@1.0.10/dist/guitarchords.min.js"></script>
+    
+    <script>
+    !function(e,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define([],t):"object"==typeof exports?exports.Chord=t():e.Chord=t()}(window,function(){return function(e){var t={};function r(n){if(t[n])return t[n].exports;var o=t[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,r),o.l=!0,o.exports}return r.m=e,r.c=t,r.d=function(e,t,n){r.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:n})},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0})},r.t=function(e,t){if(1&t&&(e=r(e)),8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&t&&"string"!=typeof e)for(var o in e)r.d(n,o,function(t){return e[t]}.bind(null,o));return n},r.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(t,"a",t),t},r.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},r.p="",r(r.s=0)}([function(e,t,r){"use strict";r.r(t);var n={frets:[],fingers:[],barres:[],tuning:[],position:1,name:void 0,enharmonic:!1},o=function(){function e(e){if(this.settings=Object.assign({},n,e),this.settings.name)this.settings.enharmonic?this.settings.name=this.getEnharmonicName():this.settings.name=this.settings.name.replace("b","#"):this.settings.name=this.getChordName();else if(this.settings.frets.length>0){var t=this.getChordName();this.settings.enharmonic?this.settings.name=this.getEnharmonicName(t):this.settings.name=t}this.drawer=this.getDrawer()}return e.prototype.getDrawer=function(){var e={A:5,B:5,C:5,D:5,E:5,F:5,G:5,Ab:4,Bb:4,Db:4,Eb:4,Gb:4,W:5,H:5,Q:5},t=this.settings.tuning.length>0?this.settings.tuning.length:6,r=Math.max.apply(Math,this.settings.frets.filter(function(e){return-1!==e})),n=Math.min.apply(Math,this.settings.frets.filter(function(e){return-1!==e}));this.settings.position=1===n?1:n;var o=0,i=0;return this.settings.name?i=this.settings.name.length:o=Object.keys(e).reduce(function(t,r){var n=e[r];return t+n},0),{width:this.settings.width||100,height:this.settings.height||100,circle:this.settings.circle||!0,frets:r>4?r:4,position:n>1?n:1,positionText:n>1,strings:t,lineWidth:1,stringWidth:1,fretWidth:1,style:this.settings.style||"normal",defaultColor:this.settings.color||"#000",bgColor:this.settings.bgColor||"none",font:this.settings.font||"10px Arial",dotSize:i>0?Math.ceil(o/i):5,dotColor:this.settings.dotColor||this.settings.color||"#000",stroke:this.settings.stroke||!1}},e.prototype.getChordName=function(){for(var e=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"],t=this.settings.tuning.length>0?this.settings.tuning:this.settings.capo?["E","A","D","G","B","E"].slice(this.settings.capo):["E","A","D","G","B","E"],r=[],n=0;n<t.length;n++){var o=this.settings.frets[n];-1!==o&&r.push(e[(e.indexOf(t[n].replace("b","#"))+o)%12])}return r=r.filter(function(e,t){return r.indexOf(e)===t}),r.join()},e.prototype.getEnharmonicName=function(e){var t=e||this.settings.name,r={"C#":"Db","D#":"Eb","F#":"Gb","G#":"Ab","A#":"Bb"};return Object.keys(r).forEach(function(e){t=t.replace(e,r[e])}),t},e.prototype.draw=function(e,t){var r=Object.assign(this.getDrawer(),t);document.getElementById(e).innerHTML="";var n=r.width,o=r.height,i=document.createElementNS("http://www.w3.org/2000/svg","svg");i.setAttributeNS(null,"width",n),i.setAttributeNS(null,"height",o),i.setAttributeNS(null,"style","background-color: "+r.bgColor+";"),document.getElementById(e).appendChild(i);var s=r.strings,a=r.frets,h=20,c=r.stringWidth,l=r.fretWidth,g=r.lineWidth,u=r.dotSize,f=r.positionText,d=r.font.split(" "),p=d[0],m=d[d.length-1],y=document.createElementNS("http://www.w3.org/2000/svg","g");if(f){var v=document.createElementNS("http://www.w3.org/2000/svg","text");v.setAttribute("x",2),v.setAttribute("y",h+parseFloat(p)/2),v.setAttribute("font-family",m),v.setAttribute("font-size",p),v.setAttribute("fill",r.defaultColor),v.appendChild(document.createTextNode(r.position)),y.appendChild(v)}for(var b=0;b<s;b++){var k=document.createElementNS("http://www.w3.org/2000/svg","line");k.setAttribute("x1",10+b*h),k.setAttribute("y1",10),k.setAttribute("x2",10+b*h),k.setAttribute("y2",h*a),k.setAttribute("style","stroke:"+r.defaultColor+";stroke-width:"+c),y.appendChild(k)}for(b=0;b<a;b++){k=document.createElementNS("http://www.w3.org/2000/svg","line");var x=b*h+10,S=1===b?g:l;k.setAttribute("x1",10),k.setAttribute("y1",x),k.setAttribute("x2",10+h*(s-1)),k.setAttribute("y2",x),k.setAttribute("style","stroke:"+r.defaultColor+";stroke-width:"+S),y.appendChild(k)}i.appendChild(y);var w=document.createElementNS("http://www.w3.org/2000/svg","g");for(b=0;b<this.settings.fingers.length;b++){var N=this.settings.fingers[b];if(N>0){var A=10+(b-1)*h,C=h*(this.settings.frets[b-1]-1)+h/2+10,F=document.createElementNS("http://www.w3.org/2000/svg","circle");F.setAttribute("cx",A),F.setAttribute("cy",C),F.setAttribute("r",u),F.setAttribute("fill",r.dotColor),w.appendChild(F);var B=document.createElementNS("http://www.w3.org/2000/svg","text");B.setAttribute("x",A),B.setAttribute("y",C+3),B.setAttribute("text-anchor","middle"),B.setAttribute("font-family",m),B.setAttribute("font-size",p),B.setAttribute("fill",r.bgColor),B.appendChild(document.createTextNode(N)),w.appendChild(B)}}for(b=0;b<this.settings.frets.length;b++){var M=this.settings.frets[b];if(0===M){F=document.createElementNS("http://www.w3.org/2000/svg","circle");A=10+b*h,C=5;r.stroke?(F.setAttribute("stroke",r.defaultColor),F.setAttribute("stroke-width",1)):F.setAttribute("fill",r.dotColor),F.setAttribute("cx",A),F.setAttribute("cy",C),F.setAttribute("r",4),w.appendChild(F)}if(-1===M){A=10+b*h,C=5;var E=document.createElementNS("http://www.w3.org/2000/svg","line");E.setAttribute("x1",A-4),E.setAttribute("y1",C-4),E.setAttribute("x2",A+4),E.setAttribute("y2",C+4),E.setAttribute("style","stroke:"+r.defaultColor+";stroke-width:"+g),w.appendChild(E);var O=document.createElementNS("http://www.w3.org/2000/svg","line");O.setAttribute("x1",A-4),O.setAttribute("y1",C+4),O.setAttribute("x2",A+4),O.setAttribute("y2",C-4),O.setAttribute("style","stroke:"+r.defaultColor+";stroke-width:"+g),w.appendChild(O)}}for(b=0;b<this.settings.barres.length;b++){var P=this.settings.barres[b],j=P.fromString,D=P.toString,T=P.fret,L=10+(j-1)*h,z=(D-j)*h+L,G=T*h-h/2+10;F=document.createElementNS("http://www.w3.org/2000/svg","rect");F.setAttribute("x",L),F.setAttribute("y",G-u),F.setAttribute("width",z-L),F.setAttribute("height",2*u),F.setAttribute("rx",u),F.setAttribute("ry",u),F.setAttribute("fill",r.dotColor),w.appendChild(F)}i.appendChild(w)},e}();t.default=o}])});
+    </script>
 
     <style>
         :root {
@@ -148,12 +151,12 @@
 
         .modal-content {
             background-color: var(--surface-color);
-            margin: 15% auto;
+            margin: 10% auto;
             padding: 20px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             width: 80%;
-            max-width: 300px;
+            max-width: 280px;
             text-align: center;
             position: relative;
             animation: slideIn 0.3s;
@@ -175,6 +178,10 @@
         
         #modal-chord-diagram {
             margin-top: 15px;
+        }
+        
+        #modal-chord-diagram > svg {
+            margin: 0 auto;
         }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -256,11 +263,9 @@
                 'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm'], 'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm']
             };
 
-            // --- STATE ---
             let currentProgression = [];
             let savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [];
 
-            // --- DOM ELEMENTS ---
             const chordSelector = document.getElementById('chord-selector');
             const progressionDisplay = document.getElementById('progression-display');
             const saveBtn = document.getElementById('save-btn');
@@ -273,7 +278,6 @@
             const modalTitle = document.getElementById('modal-chord-title');
             const modalDiagram = document.getElementById('modal-chord-diagram');
 
-            // --- RENDER FUNCTIONS ---
             const renderChordButtons = () => {
                 chordSelector.innerHTML = '';
                 for (const root in ALL_CHORDS) {
@@ -344,6 +348,7 @@
                     chord.draw('modal-chord-diagram', {
                         width: 250,
                         height: 300,
+                        style: 'normal',
                         tuning: ["E", "A", "D", "G", "B", "E"]
                     });
                 }
@@ -354,7 +359,6 @@
                 chordModal.style.display = 'none';
             };
             
-            // --- EVENT HANDLERS & LOGIC ---
             const addChordToProgression = (chord) => {
                 currentProgression.push(chord);
                 renderProgression();
@@ -403,13 +407,11 @@
                 });
             };
 
-            // --- INITIALIZATION ---
             renderChordButtons();
             renderKeySelector();
             renderProgression();
             renderSavedProgressions();
             
-            // --- EVENT LISTENERS ---
             chordSelector.addEventListener('click', (e) => {
                 if (e.target.classList.contains('chord-btn')) {
                     addChordToProgression(e.target.dataset.chord);
