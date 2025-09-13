@@ -135,7 +135,19 @@
         #key-selector { padding: 8px; border-radius: 5px; background-color: #333; color: white; border: 1px solid var(--border-color); }
 
         .chord-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
-        .chord-btn { background-color: #444; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px; cursor: pointer; transition: all 0.2s; font-weight: 500; }
+        .chord-btn { 
+            background-color: #444; 
+            color: var(--text-color); 
+            padding: 12px 0; 
+            text-align: center; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-weight: 500;
+            border: none;
+            font-family: inherit;
+            font-size: 1em;
+        }
         .chord-btn.suggested { background-color: var(--highlight-color); border: 1px solid var(--success-color); box-shadow: 0 0 10px var(--highlight-color); }
         .chord-btn:hover { background-color: #555; transform: translateY(-2px); }
 
@@ -253,14 +265,24 @@
                 'Cmaj7':{ frets: [-1, 3, 2, 0, 0, 0], fingers: [0, 2, 1, 0, 0, 0], title: 'C Major 7th' },
                 'G':    { frets: [3, 2, 0, 0, 0, 3], fingers: [2, 1, 0, 0, 0, 3], title: 'G Major' },
                 'G7':   { frets: [3, 2, 0, 0, 0, 1], fingers: [3, 2, 0, 0, 0, 1], title: 'G7' },
+                'Gmaj7':{ frets: [3, 2, 0, 0, 0, 2], fingers: [2, 1, 0, 0, 0, 3], title: 'G Major 7th' },
                 'Am':   { frets: [-1, 0, 2, 2, 1, 0], fingers: [0, 0, 2, 3, 1, 0], title: 'A Minor' },
                 'A':    { frets: [-1, 0, 2, 2, 2, 0], fingers: [0, 0, 1, 2, 3, 0], title: 'A Major' },
                 'A7':   { frets: [-1, 0, 2, 0, 2, 0], fingers: [0, 0, 2, 0, 3, 0], title: 'A7' },
+                'Amaj7':{ frets: [-1, 0, 2, 1, 2, 0], fingers: [0, 0, 2, 1, 3, 0], title: 'A Major 7th' },
                 'E':    { frets: [0, 2, 2, 1, 0, 0], fingers: [0, 2, 3, 1, 0, 0], title: 'E Major' },
                 'Em':   { frets: [0, 2, 2, 0, 0, 0], fingers: [0, 2, 3, 0, 0, 0], title: 'E Minor' },
+                'E7':   { frets: [0, 2, 0, 1, 0, 0], fingers: [0, 2, 0, 1, 0, 0], title: 'E7' },
+                'Emaj7':{ frets: [0, 2, 1, 1, 0, 0], fingers: [0, 2, 1, 1, 0, 0], title: 'E Major 7th' },
                 'D':    { frets: [-1, -1, 0, 2, 3, 2], fingers: [0, 0, 0, 1, 3, 2], title: 'D Major' },
                 'Dm':   { frets: [-1, -1, 0, 2, 3, 1], fingers: [0, 0, 0, 2, 3, 1], title: 'D Minor' },
+                'D7':   { frets: [-1, -1, 0, 2, 1, 2], fingers: [0, 0, 0, 2, 1, 3], title: 'D7' },
+                'Dmaj7':{ frets: [-1, -1, 0, 2, 2, 2], fingers: [0, 0, 0, 1, 2, 3], title: 'D Major 7th' },
                 'F':    { frets: [1, 3, 3, 2, 1, 1], fingers: [1, 3, 4, 2, 1, 1], barres: [{ fromString: 6, toString: 1, fret: 1 }], title: 'F Major' },
+                'Fmaj7':{ frets: [1, 3, 2, 2, 1, 1], fingers: [1, 4, 2, 3, 1, 1], barres: [{ fromString: 6, toString: 1, fret: 1 }], title: 'F Major 7th' },
+                'B':    { frets: [-1, 2, 4, 4, 4, 2], fingers: [0, 1, 2, 3, 4, 1], barres: [{ fromString: 5, toString: 1, fret: 2 }], title: 'B Major' },
+                'Bm':   { frets: [-1, 2, 4, 4, 3, 2], fingers: [0, 1, 3, 4, 2, 1], barres: [{ fromString: 5, toString: 1, fret: 2 }], title: 'B Minor' },
+                'B7':   { frets: [-1, 2, 1, 2, 0, 2], fingers: [0, 2, 1, 3, 0, 4], title: 'B7' },
             };
             
             const DIATONIC_CHORDS = {
@@ -353,7 +375,7 @@
                 } else {
                     modalTitle.textContent = definition.title;
                     modalDiagram.innerHTML = '';
-                    const chord = new Chord.default(definition);
+                    const chord = new Chord(definition);
                     chord.draw('modal-chord-diagram', {
                         width: 250,
                         height: 300,
