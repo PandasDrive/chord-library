@@ -4,7 +4,8 @@ from flask import Flask, request, jsonify, send_file, abort
 
 app = Flask(__name__)
 
-# This is the single source of truth for all chord shapes.
+# --- DATA DEFINITIONS ---
+
 CHORD_DEFINITIONS = {
     'C':    { "frets": [-1, 3, 2, 0, 1, 0], "barres": [], "title": "C Major" },
     'Cm':   { "frets": [-1, 3, 5, 5, 4, 3], "barres": [{"fromString": 5, "toString": 1, "fret": 3 }], "title": "C Minor" },
@@ -24,6 +25,26 @@ CHORD_DEFINITIONS = {
     'F':    { "frets": [1, 3, 3, 2, 1, 1], "barres": [{"fromString": 6, "toString": 1, "fret": 1 }], "title": "F Major" },
     'B7':   { "frets": [-1, 2, 1, 2, 0, 2], "barres": [], "title": "B7" },
 }
+
+SCALE_DEFINITIONS = {
+    "minor_pentatonic": {
+        "title": "Minor Pentatonic",
+        "description": "A versatile 5-note scale, essential for rock and blues.",
+        "pattern": {
+            "box1": {"root_string": 6, "frets": [(6,0), (6,3), (5,0), (5,2), (4,0), (4,2), (3,0), (3,2), (2,0), (2,3), (1,0), (1,3)]}
+        }
+    },
+    "major_scale": {
+        "title": "Major Scale (Ionian)",
+        "description": "The foundation of Western music, with a happy sound.",
+        "pattern": {
+            "box1": {"root_string": 6, "frets": [(6,0), (6,2), (6,4), (5,0), (5,2), (5,4), (4,1), (4,2), (4,4), (3,1), (3,2), (3,4), (2,2), (2,4), (2,5), (1,2), (1,4), (1,5)]}
+        }
+    }
+}
+
+
+# --- SVG GENERATION ---
 
 def generate_svg_chord_diagram(chord_data):
     STRING_COUNT, FRET_COUNT = 6, 5
@@ -85,6 +106,57 @@ def generate_svg_chord_diagram(chord_data):
     svg.extend(['</g>', '</svg>'])
     return "\n".join(svg)
 
+def generate_svg_scale_diagram(scale_data, key, box):
+    STRING_COUNT, FRET_COUNT = 6, 5
+    WIDTH, HEIGHT = 250, 300
+    PAD_X, PAD_Y = 40, 50
+    DIAGRAM_WIDTH, DIAGRAM_HEIGHT = WIDTH - (PAD_X * 2), HEIGHT - (PAD_Y * 2)
+    STRING_SPACING = DIAGRAM_WIDTH / (STRING_COUNT - 1)
+    FRET_SPACING = DIAGRAM_HEIGHT / FRET_COUNT
+    DOT_RADIUS = FRET_SPACING / 4
+    COLOR_FG, COLOR_ROOT = "#FFFFFF", "#007bff"
+    COLOR_BG = "#1a1a1a"
+
+    pattern = scale_data.get('pattern', {}).get(box)
+    if not pattern:
+        abort(404, f"Box '{box}' not found for this scale.")
+
+    notes = pattern['frets']
+    positive_frets = [fret for string, fret in notes if fret > 0]
+    min_fret = min(positive_frets) if positive_frets else 1
+    position = min_fret if min_fret > 1 else 1
+
+    svg = [f'<svg width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" xmlns="http://www.w3.org/2000/svg">',
+           f'<rect width="100%" height="100%" fill="{COLOR_BG}"/>',
+           f'<g transform="translate({PAD_X}, {PAD_Y})" font-family="Arial" fill="{COLOR_FG}">']
+    
+    if position > 1:
+        svg.append(f'<text x="-{PAD_X/2.5}" y="{FRET_SPACING*0.8}" font-size="{FRET_SPACING*0.8}" text-anchor="middle">{position}</text>')
+
+    for i in range(FRET_COUNT + 1):
+        y = i * FRET_SPACING
+        svg.append(f'<line x1="0" y1="{y}" x2="{DIAGRAM_WIDTH}" y2="{y}" stroke="{COLOR_FG}" stroke-width="2" />')
+
+    for i in range(STRING_COUNT):
+        x = i * STRING_SPACING
+        svg.append(f'<line x1="{x}" y1="0" x2="{x}" y2="{DIAGRAM_HEIGHT}" stroke="{COLOR_FG}" stroke-width="1" />')
+
+    for string, fret in notes:
+        if fret >= position or fret == 0:
+            string_x = (STRING_COUNT - string) * STRING_SPACING
+            fret_index = fret - position + 1 if fret > 0 else 0
+            dot_y = (fret_index * FRET_SPACING) - (FRET_SPACING / 2) if fret > 0 else -FRET_SPACING/2
+            
+            is_root = (string == pattern['root_string'] and fret == 0) # simplified root note logic
+            
+            svg.append(f'<circle cx="{string_x}" cy="{dot_y}" r="{DOT_RADIUS}" fill="{"{COLOR_ROOT}" if is_root else "{COLOR_FG}"}" />')
+
+    svg.extend(['</g>', '</svg>'])
+    return "".join(svg)
+
+
+# --- API ROUTES ---
+
 @app.route('/')
 def index():
     return send_file('index.html')
@@ -115,6 +187,27 @@ def chord_diagram():
 
     svg_string = generate_svg_chord_diagram(chord_data)
     return send_file(io.BytesIO(svg_string.encode('utf-8')), mimetype='image/svg+xml')
+
+@app.route('/api/scales', methods=['GET'])
+def get_scales():
+    return jsonify(SCALE_DEFINITIONS)
+
+@app.route('/api/scale-diagram', methods=['POST'])
+def scale_diagram():
+    scale_name = request.form.get('scale')
+    key = request.form.get('key', 'E') # Default key
+    box = request.form.get('box', 'box1') # Default box
+    
+    if not scale_name:
+        abort(400, "Scale name not provided.")
+        
+    scale_data = SCALE_DEFINITIONS.get(scale_name)
+    if not scale_data:
+        abort(404, f"Scale definition for '{scale_name}' not found.")
+        
+    svg_string = generate_svg_scale_diagram(scale_data, key, box)
+    return send_file(io.BytesIO(svg_string.encode('utf-8')), mimetype='image/svg+xml')
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))

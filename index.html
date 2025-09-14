@@ -152,6 +152,20 @@
         .saved-chords { font-family: monospace; font-size: 1.1em; }
         .saved-item-actions button { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 1.2em; margin-left: 10px; }
         .saved-item-actions button:hover { color: var(--primary-color); }
+        
+        /* New Styles for Scales */
+        .scale-selector { display: flex; flex-direction: column; gap: 10px; }
+        .scale-btn {
+            background-color: #3a3a3a;
+            color: var(--text-color);
+            padding: 12px;
+            text-align: left;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid var(--border-color);
+        }
+        .scale-btn:hover { background-color: #555; }
 
         .modal {
             display: none;
@@ -253,6 +267,11 @@
                 <button id="add-chord-btn" class="btn" style="margin-left: auto;">➕ New Chord</button>
             </div>
             <div id="chord-selector" class="chord-selector"></div>
+            
+            <hr>
+            <h3>Scales</h3>
+            <div id="scale-selector" class="scale-selector">
+                </div>
         </aside>
     </div>
 
@@ -317,6 +336,7 @@
             let currentProgression = [];
             let savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [];
             let allChordsData = {};
+            let allScalesData = {};
 
             const chordSelector = document.getElementById('chord-selector');
             const progressionDisplay = document.getElementById('progression-display');
@@ -334,6 +354,7 @@
             const closeAddModalBtn = document.getElementById('close-add-modal-btn');
             const addChordForm = document.getElementById('add-chord-form');
             const addChordError = document.getElementById('add-chord-error');
+            const scaleSelector = document.getElementById('scale-selector'); // New element reference
 
             const renderChordButtons = () => {
                 chordSelector.innerHTML = '';
@@ -345,6 +366,18 @@
                     button.dataset.chord = chordName;
                     chordSelector.appendChild(button);
                 });
+            };
+            
+            const renderScaleButtons = () => {
+                scaleSelector.innerHTML = '';
+                for (const scaleKey in allScalesData) {
+                    const scale = allScalesData[scaleKey];
+                    const button = document.createElement('button');
+                    button.className = 'scale-btn';
+                    button.textContent = scale.title;
+                    button.dataset.scale = scaleKey;
+                    scaleSelector.appendChild(button);
+                }
             };
             
             const renderKeySelector = () => {
@@ -407,18 +440,38 @@
                         body: formData
                     });
 
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`API Error: ${errorText || response.statusText}`);
-                    }
-
-                    // The response is an SVG image, so we display it directly.
+                    if (!response.ok) throw new Error(await response.text());
                     const svgText = await response.text();
                     modalDiagram.innerHTML = svgText;
 
                 } catch (error) {
                     console.error('Error fetching chord diagram:', error);
-                    modalDiagram.innerHTML = `Could not load diagram. ${error.message}`;
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`;
+                }
+            };
+            
+            const openScaleModal = async (scaleName) => {
+                const definition = allScalesData[scaleName];
+                modalTitle.textContent = definition ? definition.title : scaleName;
+                modalDiagram.innerHTML = 'Loading...';
+                chordModal.style.display = 'block';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('scale', scaleName);
+
+                    const response = await fetch('/api/scale-diagram', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(await response.text());
+                    const svgText = await response.text();
+                    modalDiagram.innerHTML = svgText;
+
+                } catch (error) {
+                    console.error('Error fetching scale diagram:', error);
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`;
                 }
             };
 
@@ -476,17 +529,25 @@
 
             const initializeApp = async () => {
                 try {
-                    const response = await fetch('/api/chords');
-                    if (!response.ok) throw new Error('Failed to load chords from server.');
-                    allChordsData = await response.json();
+                    const [chordsResponse, scalesResponse] = await Promise.all([
+                        fetch('/api/chords'),
+                        fetch('/api/scales')
+                    ]);
+                    
+                    if (!chordsResponse.ok) throw new Error('Failed to load chords from server.');
+                    if (!scalesResponse.ok) throw new Error('Failed to load scales from server.');
+
+                    allChordsData = await chordsResponse.json();
+                    allScalesData = await scalesResponse.json();
                     
                     renderChordButtons();
+                    renderScaleButtons();
                     renderKeySelector();
                     renderProgression();
                     renderSavedProgressions();
                 } catch (error) {
                     console.error("Initialization failed:", error);
-                    chordSelector.innerHTML = `<p style="color: var(--danger-color);">Could not load chords.</p>`;
+                    chordSelector.innerHTML = `<p style="color: var(--danger-color);">Could not load app data.</p>`;
                 }
             };
             
@@ -495,6 +556,12 @@
             chordSelector.addEventListener('click', (e) => {
                 if (e.target.classList.contains('chord-btn')) {
                     addChordToProgression(e.target.dataset.chord);
+                }
+            });
+            
+            scaleSelector.addEventListener('click', (e) => {
+                if (e.target.classList.contains('scale-btn')) {
+                    openScaleModal(e.target.dataset.scale);
                 }
             });
 
@@ -579,4 +646,3 @@
     </script>
 </body>
 </html>
-}
