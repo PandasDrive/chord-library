@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Chord Progression Builder</title>
+    
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --surface-color: #2c2c2c;
+            --primary-color: #007bff;
+            --primary-hover: #0056b3;
+            --text-color: #f0f0f0;
+            --subtle-text: #a0a0a0;
+            --border-color: #444;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --highlight-color: rgba(40, 167, 69, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .main-content, .sidebar {
+            background-color: var(--surface-color);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        h1, h2, h3 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .progression-display {
+            background-color: var(--bg-color);
+            min-height: 80px;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .progression-placeholder {
+            color: var(--subtle-text);
+            font-style: italic;
+        }
+
+        .chord-pill {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .chord-pill:hover {
+             background-color: var(--primary-hover);
+        }
+        
+        .chord-name {
+            flex-grow: 1;
+        }
+
+        .remove-chord {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 1;
+            flex-shrink: 0;
+            border: none;
+            color: white;
+            padding: 0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .remove-chord:hover {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; transition: background-color 0.2s; }
+        .btn-save { background-color: var(--success-color); color: white; }
+        .btn-save:hover { background-color: #218838; }
+        .btn-clear { background-color: var(--danger-color); color: white; }
+        .btn-clear:hover { background-color: #c82333; }
+        .btn-suggest { background-color: #6c757d; color: white; }
+        .btn-suggest:hover { background-color: #5a6268; }
+        .key-selector-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+        #key-selector { padding: 8px; border-radius: 5px; background-color: #333; color: white; border: 1px solid var(--border-color); }
+
+        .chord-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
+        .chord-btn { 
+            background-color: #444; 
+            color: var(--text-color); 
+            padding: 12px 0; 
+            text-align: center; 
+            border-radius: 5px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-weight: 500;
+            border: none;
+            font-family: inherit;
+            font-size: 1em;
+        }
+        .chord-btn.suggested { background-color: var(--highlight-color); border: 1px solid var(--success-color); box-shadow: 0 0 10px var(--highlight-color); }
+        .chord-btn:hover { background-color: #555; transform: translateY(-2px); }
+
+        .saved-progressions-list { list-style: none; padding: 0; margin: 0; }
+        .saved-item { background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .saved-chords { font-family: monospace; font-size: 1.1em; }
+        .saved-item-actions button { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 1.2em; margin-left: 10px; }
+        .saved-item-actions button:hover { color: var(--primary-color); }
+
+        .scale-selector { display: flex; flex-direction: column; gap: 10px; }
+        .scale-btn {
+            background-color: #3a3a3a;
+            color: var(--text-color);
+            padding: 12px;
+            text-align: left;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            border: 1px solid var(--border-color);
+        }
+        .scale-btn:hover { background-color: #555; }
+        
+        .box-selector {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .box-btn {
+            background-color: #444;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .box-btn.active, .box-btn:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-hover);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background-color: var(--surface-color);
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 80%;
+            max-width: 280px;
+            text-align: center;
+            position: relative;
+            animation: slideIn 0.3s;
+        }
+        
+        #add-chord-modal .modal-content {
+            max-width: 450px;
+            text-align: left;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"], .form-group input[type="number"] {
+            width: 95%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .close-button {
+            color: #aaa;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close-button:hover, .close-button:focus {
+            color: white;
+        }
+        
+        #modal-chord-diagram {
+            margin-top: 15px;
+        }
+        
+        #modal-chord-diagram > img, #modal-chord-diagram > svg {
+            margin: 0 auto;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <main class="main-content">
+            <h2>Current Progression</h2>
+            <div id="progression-display" class="progression-display">
+                <span class="progression-placeholder">Select chords from the right...</span>
+            </div>
+            <div class="controls">
+                <button id="save-btn" class="btn btn-save">💾 Save Progression</button>
+                <button id="clear-btn" class="btn btn-clear">🗑️ Clear</button>
+            </div>
+            <hr>
+            <h2>Saved Progressions</h2>
+            <ul id="saved-progressions-list" class="saved-progressions-list"></ul>
+        </main>
+
+        <aside class="sidebar">
+            <h3>Chord Selector</h3>
+            <div class="key-selector-container">
+                <label for="key-selector">Key:</label>
+                <select id="key-selector"></select>
+                <button id="suggest-btn" class="btn btn-suggest">Suggest Chords</button>
+                <button id="add-chord-btn" class="btn" style="margin-left: auto;">➕ New Chord</button>
+            </div>
+            <div id="chord-selector" class="chord-selector"></div>
+            
+            <hr>
+            <h3>Scales</h3>
+            <div id="scale-selector" class="scale-selector"></div>
+        </aside>
+    </div>
+
+    <div id="chord-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-modal-btn" class="close-button">&times;</span>
+            <h2 id="modal-chord-title"></h2>
+            <div id="modal-box-selector" class="box-selector"></div>
+            <div id="modal-chord-diagram"></div>
+        </div>
+    </div>
+
+    <div id="add-chord-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-add-modal-btn" class="close-button">&times;</span>
+            <h2>Add New Chord</h2>
+            <form id="add-chord-form">
+                <div class="form-group">
+                    <label for="new-chord-name">Chord Name (e.g., "Gsus4")</label>
+                    <input type="text" id="new-chord-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-chord-title">Display Title (e.g., "G suspended 4th")</label>
+                    <input type="text" id="new-chord-title" required>
+                </div>
+                <div class="form-group">
+                    <label>Frets (E-A-D-G-B-e) (-1 for muted)</label>
+                    <div style="display: flex; gap: 5px;">
+                        <input type="number" class="fret-input" required value="-1" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                        <input type="number" class="fret-input" required value="0" style="width: 15%;">
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label><input type="checkbox" id="has-barre"> Has Barre?</label>
+                </div>
+                <div id="barre-details" style="display: none; border-left: 2px solid var(--primary-color); padding-left: 15px;">
+                    <div class="form-group"><label for="barre-fret">Barre Fret:</label><input type="number" id="barre-fret" min="1"></div>
+                    <div class="form-group"><label for="barre-from">From String (e.g., 6):</label><input type="number" id="barre-from" min="1" max="6"></div>
+                    <div class="form-group"><label for="barre-to">To String (e.g., 1):</label><input type="number" id="barre-to" min="1" max="6"></div>
+                </div>
+                <button type="submit" class="btn btn-save" style="width: 100%;">💾 Save Chord</button>
+                <p id="add-chord-error" style="color: var(--danger-color); text-align: center;"></p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE & DATA ---
+            const DIATONIC_CHORDS = {
+                'C':  ['C', 'Dm', 'Em', 'F', 'G', 'Am'], 'G':  ['G', 'Am', 'Bm', 'C', 'D', 'Em'],
+                'D':  ['D', 'Em', 'F#m', 'G', 'A', 'Bm'], 'A':  ['A', 'Bm', 'C#m', 'D', 'E', 'F#m'],
+                'E':  ['E', 'F#m', 'G#m', 'A', 'B', 'C#m'], 'B':  ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m'],
+                'F#': ['F#', 'G#m', 'A#m', 'B', 'C#', 'D#m'], 'C#': ['C#', 'D#m', 'E#m', 'F#', 'G#', 'A#m'],
+                'F':  ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm'], 'Bb': ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm'],
+                'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm'], 'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm']
+            };
+
+            let currentProgression = [];
+            let savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [];
+            let allChordsData = {};
+            let allScalesData = {};
+
+            const chordSelector = document.getElementById('chord-selector');
+            const progressionDisplay = document.getElementById('progression-display');
+            const saveBtn = document.getElementById('save-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const savedList = document.getElementById('saved-progressions-list');
+            const keySelector = document.getElementById('key-selector');
+            const suggestBtn = document.getElementById('suggest-btn');
+            const chordModal = document.getElementById('chord-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const modalTitle = document.getElementById('modal-chord-title');
+            const modalDiagram = document.getElementById('modal-chord-diagram');
+            const addChordBtn = document.getElementById('add-chord-btn');
+            const addChordModal = document.getElementById('add-chord-modal');
+            const closeAddModalBtn = document.getElementById('close-add-modal-btn');
+            const addChordForm = document.getElementById('add-chord-form');
+            const addChordError = document.getElementById('add-chord-error');
+            const scaleSelector = document.getElementById('scale-selector');
+
+            const renderChordButtons = () => {
+                chordSelector.innerHTML = '';
+                const chordNames = Object.keys(allChordsData).sort();
+                chordNames.forEach(chordName => {
+                    const button = document.createElement('button');
+                    button.className = 'chord-btn';
+                    button.textContent = chordName;
+                    button.dataset.chord = chordName;
+                    chordSelector.appendChild(button);
+                });
+            };
+            
+            const renderScaleButtons = () => {
+                scaleSelector.innerHTML = '';
+                for (const scaleKey in allScalesData) {
+                    const scale = allScalesData[scaleKey];
+                    const button = document.createElement('button');
+                    button.className = 'scale-btn';
+                    button.textContent = scale.title;
+                    button.dataset.scale = scaleKey;
+                    scaleSelector.appendChild(button);
+                }
+            };
+            
+            const renderKeySelector = () => {
+                keySelector.innerHTML = '';
+                Object.keys(DIATONIC_CHORDS).forEach(key => {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = key;
+                    keySelector.appendChild(option);
+                });
+            };
+
+            const renderProgression = () => {
+                progressionDisplay.innerHTML = '';
+                if (currentProgression.length === 0) {
+                    progressionDisplay.innerHTML = '<span class="progression-placeholder">Select chords from the right...</span>';
+                    return;
+                }
+                currentProgression.forEach((chord, index) => {
+                    const pill = document.createElement('div');
+                    pill.className = 'chord-pill';
+                    pill.dataset.chordName = chord;
+                    pill.innerHTML = `<span class="chord-name">${chord}</span><button class="remove-chord" data-index="${index}" aria-label="Remove ${chord}">&times;</button>`;
+                    progressionDisplay.appendChild(pill);
+                });
+            };
+
+            const renderSavedProgressions = () => {
+                savedList.innerHTML = '';
+                 if (savedProgressions.length === 0) {
+                    savedList.innerHTML = '<li>No saved progressions yet.</li>';
+                    return;
+                }
+                savedProgressions.forEach((prog, index) => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'saved-item';
+                    listItem.innerHTML = `
+                        <span class="saved-chords">${prog.join(' - ')}</span>
+                        <div class="saved-item-actions">
+                            <button data-action="load" data-index="${index}" title="Load">⬆️</button>
+                            <button data-action="delete" data-index="${index}" title="Delete">🗑️</button>
+                        </div>
+                    `;
+                    savedList.appendChild(listItem);
+                });
+            };
+
+            const openChordModal = async (chordName) => {
+                const definition = allChordsData[chordName];
+                document.getElementById('modal-box-selector').innerHTML = ''; // Hide box selector for chords
+                modalTitle.textContent = definition ? definition.title : chordName;
+                modalDiagram.innerHTML = 'Loading...';
+                chordModal.style.display = 'block';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('chord', chordName);
+
+                    const response = await fetch('/api/chord-diagram', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(await response.text());
+                    const svgText = await response.text();
+                    modalDiagram.innerHTML = svgText;
+
+                } catch (error) {
+                    console.error('Error fetching chord diagram:', error);
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`;
+                }
+            };
+            
+            const openScaleModal = async (scaleName, box = 'box1') => {
+                const definition = allScalesData[scaleName];
+                modalTitle.textContent = definition ? `${definition.title} - Box ${box.slice(-1)}` : scaleName;
+                modalDiagram.innerHTML = 'Loading...';
+                chordModal.style.display = 'block';
+
+                const boxSelector = document.getElementById('modal-box-selector');
+                boxSelector.innerHTML = '';
+                if (definition && definition.pattern) {
+                    Object.keys(definition.pattern).forEach(boxKey => {
+                        const button = document.createElement('button');
+                        button.className = 'box-btn';
+                        button.textContent = `Box ${boxKey.slice(-1)}`;
+                        if (boxKey === box) {
+                            button.classList.add('active');
+                        }
+                        button.onclick = () => openScaleModal(scaleName, boxKey);
+                        boxSelector.appendChild(button);
+                    });
+                }
+
+                try {
+                    const formData = new FormData();
+                    formData.append('scale', scaleName);
+                    formData.append('box', box);
+
+                    const response = await fetch('/api/scale-diagram', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) throw new Error(await response.text());
+                    const svgText = await response.text();
+                    modalDiagram.innerHTML = svgText;
+
+                } catch (error) {
+                    console.error('Error fetching scale diagram:', error);
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`;
+                }
+            };
+
+            const closeModal = () => {
+                chordModal.style.display = 'none';
+            };
+            
+            const addChordToProgression = (chord) => {
+                currentProgression.push(chord);
+                renderProgression();
+            };
+            
+            const removeChordFromProgression = (index) => {
+                currentProgression.splice(index, 1);
+                renderProgression();
+            };
+            
+            const saveCurrentProgression = () => {
+                if (currentProgression.length > 0) {
+                    savedProgressions.push([...currentProgression]);
+                    localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions));
+                    renderSavedProgressions();
+                }
+            };
+            
+            const handleSavedListClick = (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+                
+                const action = target.dataset.action;
+                const index = parseInt(target.dataset.index);
+                
+                if (action === 'load') {
+                    currentProgression = [...savedProgressions[index]];
+                    renderProgression();
+                } else if (action === 'delete') {
+                    savedProgressions.splice(index, 1);
+                    localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions));
+                    renderSavedProgressions();
+                }
+            };
+            
+            const highlightSuggestedChords = () => {
+                const selectedKey = keySelector.value;
+                const suggested = DIATONIC_CHORDS[selectedKey] || [];
+                
+                document.querySelectorAll('.chord-btn').forEach(btn => {
+                    if (suggested.includes(btn.dataset.chord)) {
+                        btn.classList.add('suggested');
+                    } else {
+                        btn.classList.remove('suggested');
+                    }
+                });
+            };
+
+            const initializeApp = async () => {
+                try {
+                    const [chordsResponse, scalesResponse] = await Promise.all([
+                        fetch('/api/chords'),
+                        fetch('/api/scales')
+                    ]);
+                    
+                    if (!chordsResponse.ok) throw new Error('Failed to load chords from server.');
+                    if (!scalesResponse.ok) throw new Error('Failed to load scales from server.');
+
+                    allChordsData = await chordsResponse.json();
+                    allScalesData = await scalesResponse.json();
+                    
+                    renderChordButtons();
+                    renderScaleButtons();
+                    renderKeySelector();
+                    renderProgression();
+                    renderSavedProgressions();
+                } catch (error) {
+                    console.error("Initialization failed:", error);
+                    chordSelector.innerHTML = `<p style="color: var(--danger-color);">Could not load app data.</p>`;
+                }
+            };
+            
+            // --- EVENT LISTENERS ---
+
+            chordSelector.addEventListener('click', (e) => {
+                if (e.target.classList.contains('chord-btn')) {
+                    addChordToProgression(e.target.dataset.chord);
+                }
+            });
+            
+            scaleSelector.addEventListener('click', (e) => {
+                if (e.target.classList.contains('scale-btn')) {
+                    openScaleModal(e.target.dataset.scale);
+                }
+            });
+
+            progressionDisplay.addEventListener('click', (e) => {
+                const pill = e.target.closest('.chord-pill');
+                if (e.target.classList.contains('remove-chord')) {
+                    removeChordFromProgression(parseInt(e.target.dataset.index));
+                } else if (pill) {
+                    openChordModal(pill.dataset.chordName);
+                }
+            });
+
+            saveBtn.addEventListener('click', saveCurrentProgression);
+            
+            clearBtn.addEventListener('click', () => {
+                currentProgression = [];
+                renderProgression();
+            });
+            
+            suggestBtn.addEventListener('click', highlightSuggestedChords);
+            
+            savedList.addEventListener('click', handleSavedListClick);
+
+            closeModalBtn.addEventListener('click', closeModal);
+            window.addEventListener('click', (e) => {
+                if (e.target == chordModal) {
+                    closeModal();
+                }
+            });
+
+            addChordBtn.addEventListener('click', () => {
+                addChordForm.reset();
+                addChordError.textContent = '';
+                document.getElementById('barre-details').style.display = 'none';
+                addChordModal.style.display = 'block';
+            });
+
+            closeAddModalBtn.addEventListener('click', () => addChordModal.style.display = 'none');
+
+            document.getElementById('has-barre').addEventListener('change', (e) => {
+                document.getElementById('barre-details').style.display = e.target.checked ? 'block' : 'none';
+            });
+
+            addChordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                addChordError.textContent = '';
+
+                const frets = Array.from(document.querySelectorAll('.fret-input')).map(input => parseInt(input.value, 10));
+                const barres = [];
+                if (document.getElementById('has-barre').checked) {
+                    barres.push({
+                        fret: parseInt(document.getElementById('barre-fret').value, 10),
+                        fromString: parseInt(document.getElementById('barre-from').value, 10),
+                        toString: parseInt(document.getElementById('barre-to').value, 10)
+                    });
+                }
+
+                const payload = {
+                    name: document.getElementById('new-chord-name').value,
+                    title: document.getElementById('new-chord-title').value,
+                    frets: frets,
+                    barres: barres
+                };
+
+                try {
+                    const response = await fetch('/api/chords', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(await response.text());
+                    
+                    addChordModal.style.display = 'none';
+                    await initializeApp(); // Re-fetch all chords including the new one
+                } catch (error) {
+                    addChordError.textContent = `Error: ${error.message}`;
+                }
+            });
+
+            initializeApp();
+        });
+    </script>
+</body>
+</html>

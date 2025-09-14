@@ -1,6 +1,6 @@
 import os
 import io
-from flask import Flask, request, jsonify, send_file, abort
+from flask import Flask, request, jsonify, send_file, abort, render_template
 
 app = Flask(__name__)
 
@@ -163,7 +163,7 @@ def generate_svg_scale_diagram(scale_data, key, box):
 
 @app.route('/')
 def index():
-    return send_file('index.html')
+    return render_template('index.html')
 
 @app.route('/api/chords', methods=['GET', 'POST'])
 def handle_chords():
