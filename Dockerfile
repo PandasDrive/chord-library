@@ -12,8 +12,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app.py .
 COPY templates ./templates/
 
-# --- NEW: Add this command to see all files in the build log ---
-RUN ls -R
-
-# The command to run when the container starts.
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "app:app"]
+# --- MODIFIED: Added --chdir flag to the CMD instruction ---
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--chdir", "/app", "app:app"]
