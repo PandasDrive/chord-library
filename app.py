@@ -1,5 +1,6 @@
 import os
 import io
+# MODIFIED: Added render_template
 from flask import Flask, request, jsonify, send_file, abort, render_template
 
 app = Flask(__name__)
@@ -25,7 +26,6 @@ CHORD_DEFINITIONS = {
     'B7':   { "frets": [-1, 2, 1, 2, 0, 2], "barres": [], "title": "B7" },
 }
 
-# --- NEW: Updated SCALE_DEFINITIONS with 5 boxes and root notes ---
 SCALE_DEFINITIONS = {
     "minor_pentatonic": {
         "title": "Minor Pentatonic",
@@ -47,6 +47,7 @@ SCALE_DEFINITIONS = {
     }
 }
 
+# (The rest of the file remains the same...)
 
 def generate_svg_chord_diagram(chord_data):
     STRING_COUNT, FRET_COUNT = 6, 5
@@ -108,7 +109,6 @@ def generate_svg_chord_diagram(chord_data):
     svg.extend(['</g>', '</svg>'])
     return "\n".join(svg)
 
-# --- NEW: Updated SVG generation for scales to handle boxes and root notes ---
 def generate_svg_scale_diagram(scale_data, key, box):
     STRING_COUNT, FRET_COUNT = 6, 5
     WIDTH, HEIGHT = 250, 300
@@ -160,7 +160,7 @@ def generate_svg_scale_diagram(scale_data, key, box):
     svg.extend(['</g>', '</svg>'])
     return "".join(svg)
 
-
+# --- MODIFIED: Use render_template for the main page ---
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -192,12 +192,10 @@ def chord_diagram():
     svg_string = generate_svg_chord_diagram(chord_data)
     return send_file(io.BytesIO(svg_string.encode('utf-8')), mimetype='image/svg+xml')
 
-# --- NEW: Route for getting scale definitions ---
 @app.route('/api/scales', methods=['GET'])
 def get_scales():
     return jsonify(SCALE_DEFINITIONS)
 
-# --- NEW: Route for generating scale diagrams ---
 @app.route('/api/scale-diagram', methods=['POST'])
 def scale_diagram():
     scale_name = request.form.get('scale')
