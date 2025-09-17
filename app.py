@@ -1,11 +1,11 @@
 import os
 import io
-# MODIFIED: Added render_template
-from flask import Flask, request, jsonify, send_file, abort, render_template
+from flask import Flask, request, jsonify, abort, render_template
 
 app = Flask(__name__)
 
-# This is the single source of truth for all chord shapes.
+# --- DATA DEFINITIONS ---
+
 CHORD_DEFINITIONS = {
     'C':    { "frets": [-1, 3, 2, 0, 1, 0], "barres": [], "title": "C Major" },
     'Cm':   { "frets": [-1, 3, 5, 5, 4, 3], "barres": [{"fromString": 5, "toString": 1, "fret": 3 }], "title": "C Minor" },
@@ -30,6 +30,7 @@ SCALE_DEFINITIONS = {
     "minor_pentatonic": {
         "title": "Minor Pentatonic",
         "description": "A versatile 5-note scale, essential for rock and blues.",
+        "base_key": "E",
         "pattern": {
             "box1": { "frets": [(6,0), (6,3), (5,0), (5,2), (4,0), (4,2), (3,0), (3,2), (2,0), (2,3), (1,0), (1,3)], "roots": [(6,0), (4,2), (1,0)] },
             "box2": { "frets": [(6,3), (6,5), (5,2), (5,5), (4,2), (4,5), (3,2), (3,4), (2,3), (2,5), (1,3), (1,5)], "roots": [(5,5), (3,2), (1,5)] },
@@ -41,15 +42,18 @@ SCALE_DEFINITIONS = {
     "major_scale": {
         "title": "Major Scale (Ionian)",
         "description": "The foundation of Western music, with a happy sound.",
+        "base_key": "E",
         "pattern": {
             "box1": {"root_string": 6, "frets": [(6,0), (6,2), (6,4), (5,0), (5,2), (5,4), (4,1), (4,2), (4,4), (3,1), (3,2), (3,4), (2,2), (2,4), (2,5), (1,2), (1,4), (1,5)], "roots": [(6,0), (5,2), (4,4)]}
         }
     }
 }
 
-# (The rest of the file remains the same...)
+# --- NEW: Note map for key transposition ---
+NOTE_MAP = {"E": 0, "F": 1, "F#": 2, "G": 3, "G#": 4, "A": 5, "A#": 6, "B": 7, "C": 8, "C#": 9, "D": 10, "D#": 11}
 
 def generate_svg_chord_diagram(chord_data):
+    # This function remains unchanged
     STRING_COUNT, FRET_COUNT = 6, 5
     WIDTH, HEIGHT = 250, 300
     PAD_X, PAD_Y = 40, 50
@@ -109,6 +113,7 @@ def generate_svg_chord_diagram(chord_data):
     svg.extend(['</g>', '</svg>'])
     return "\n".join(svg)
 
+# --- MODIFIED: Upgraded function to handle key transposition ---
 def generate_svg_scale_diagram(scale_data, key, box):
     STRING_COUNT, FRET_COUNT = 6, 5
     WIDTH, HEIGHT = 250, 300
@@ -123,12 +128,18 @@ def generate_svg_scale_diagram(scale_data, key, box):
     if not pattern:
         abort(404, f"Box '{box}' not found for this scale.")
 
-    notes, roots = pattern.get('frets', []), pattern.get('roots', [])
+    # --- Transposition Logic ---
+    base_key = scale_data.get("base_key", "E")
+    fret_shift = NOTE_MAP.get(key, 0) - NOTE_MAP.get(base_key, 0)
+    
+    notes = [(string, fret + fret_shift) for string, fret in pattern.get('frets', [])]
+    roots = [(string, fret + fret_shift) for string, fret in pattern.get('roots', [])]
     
     all_frets = [fret for string, fret in notes if fret > 0]
     position = min(all_frets) if all_frets else 1
     
-    if max(all_frets) - position >= FRET_COUNT:
+    # Adjust diagram if scale goes high up the neck
+    if all_frets and max(all_frets) - position >= FRET_COUNT:
          FRET_COUNT = max(all_frets) - position + 1
          DIAGRAM_HEIGHT = FRET_SPACING * FRET_COUNT
          HEIGHT = DIAGRAM_HEIGHT + (PAD_Y * 2)
@@ -149,6 +160,7 @@ def generate_svg_scale_diagram(scale_data, key, box):
         svg.append(f'<line x1="{x}" y1="0" x2="{x}" y2="{DIAGRAM_HEIGHT}" stroke="{COLOR_FG}" stroke-width="1" />')
 
     for string, fret in notes:
+        # Only draw notes that are within the visible fretboard area
         if fret == 0 or (fret >= position and fret < position + FRET_COUNT + 1):
             string_x = (STRING_COUNT - string) * STRING_SPACING
             fret_index = fret - position + 1 if fret >= position else 0
@@ -160,7 +172,6 @@ def generate_svg_scale_diagram(scale_data, key, box):
     svg.extend(['</g>', '</svg>'])
     return "".join(svg)
 
-# --- MODIFIED: Use render_template for the main page ---
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -169,26 +180,20 @@ def index():
 def handle_chords():
     if request.method == 'GET':
         return jsonify(CHORD_DEFINITIONS)
-    
     if request.method == 'POST':
         new_chord = request.json
         name = new_chord.get('name')
         if not name or name in CHORD_DEFINITIONS:
             abort(400, "Invalid or duplicate chord name.")
-        
         CHORD_DEFINITIONS[name] = new_chord
         return jsonify({"message": f"Chord '{name}' added."}), 201
 
 @app.route('/api/chord-diagram', methods=['POST'])
 def chord_diagram():
     chord_name = request.form.get('chord')
-    if not chord_name:
-        abort(400, "Chord name not provided.")
-
+    if not chord_name: abort(400, "Chord name not provided.")
     chord_data = CHORD_DEFINITIONS.get(chord_name)
-    if not chord_data:
-        abort(404, f"Chord definition for '{chord_name}' not found.")
-
+    if not chord_data: abort(404, f"Chord definition for '{chord_name}' not found.")
     svg_string = generate_svg_chord_diagram(chord_data)
     return send_file(io.BytesIO(svg_string.encode('utf-8')), mimetype='image/svg+xml')
 
@@ -196,22 +201,19 @@ def chord_diagram():
 def get_scales():
     return jsonify(SCALE_DEFINITIONS)
 
+# --- MODIFIED: Route now accepts the 'key' parameter from the frontend ---
 @app.route('/api/scale-diagram', methods=['POST'])
 def scale_diagram():
     scale_name = request.form.get('scale')
-    key = request.form.get('key', 'E')
+    key = request.form.get('key', 'E') # Default to 'E' if no key is provided
     box = request.form.get('box', 'box1')
     
-    if not scale_name:
-        abort(400, "Scale name not provided.")
-        
+    if not scale_name: abort(400, "Scale name not provided.")
     scale_data = SCALE_DEFINITIONS.get(scale_name)
-    if not scale_data:
-        abort(404, f"Scale definition for '{scale_name}' not found.")
+    if not scale_data: abort(404, f"Scale definition for '{scale_name}' not found.")
         
     svg_string = generate_svg_scale_diagram(scale_data, key, box)
     return send_file(io.BytesIO(svg_string.encode('utf-8')), mimetype='image/svg+xml')
-
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 8080)))
