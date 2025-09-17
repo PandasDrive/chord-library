@@ -13,8 +13,8 @@
         :root {
             --bg-color: #121212;
             --surface-color: #1e1e1e;
-            --primary-color: #2a9d8f;
-            --primary-hover: #264653;
+            --primary-color: #2a9d8f; /* A modern teal */
+            --primary-hover: #264653; /* A darker teal */
             --text-color: #e0e0e0;
             --subtle-text: #888;
             --border-color: #333;
@@ -33,6 +33,7 @@
             padding: 20px;
         }
         
+        /* --- NEW: Header Styles --- */
         .app-header {
             max-width: 1160px;
             margin: 0 auto 20px auto;
@@ -74,6 +75,7 @@
             border-radius: 8px;
             padding: 20px;
             border: 1px solid var(--border-color);
+            /* NEW: Glow effect for cards */
             box-shadow: 0 0 20px var(--glow-color);
         }
 
@@ -314,7 +316,6 @@
             
             const renderChordButtons = () => {
                 const selectedKey = keySelector.value;
-                // --- MODIFIED: Check if 'all' is selected, otherwise get the diatonic chords ---
                 const chordsToShow = selectedKey === 'all' ? Object.keys(allChordsData) : DIATONIC_CHORDS[selectedKey];
                 
                 chordSelector.innerHTML = '';
@@ -331,7 +332,6 @@
                 }
             };
             
-            // --- MODIFIED: Add an "All Chords" option to the dropdown ---
             const renderKeySelector = () => {
                 keySelector.innerHTML = '';
                 const allOption = document.createElement('option');
