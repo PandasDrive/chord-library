@@ -7,33 +7,39 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600&family=VT323&display=swap');
+
         :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --primary-color: #2a9d8f; /* A modern teal */
-            --primary-hover: #264653; /* A darker teal */
-            --text-color: #e0e0e0;
-            --subtle-text: #888;
-            --border-color: #333;
-            --success-color: #2a9d8f;
-            --danger-color: #e76f51;
-            --glow-color: rgba(42, 157, 143, 0.1);
+            --bg-color: #0d0221; /* Deep space blue/purple */
+            --surface-color: rgba(26, 20, 53, 0.8); /* Translucent dark purple */
+            --primary-color: #00f0ff; /* Glowing cyan */
+            --primary-hover: #9dffff; /* Lighter cyan for hover */
+            --text-color: #f0f0f0;
+            --subtle-text: #8b949e;
+            --border-color: rgba(0, 240, 255, 0.3); /* Faint cyan border */
+            --success-color: #00ff85; /* Neon green */
+            --danger-color: #ff0055; /* Hot pink/magenta */
+            --glow-color: rgba(0, 240, 255, 0.15); /* Main glow effect color */
+            --scanline-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%2300f0ff" fill-opacity="0.05" d="M0 2h4v1H0z"/></svg>');
         }
 
         body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'VT323', monospace; /* Pixel/retro font */
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
-            background-size: 40px 40px;
+            background-image: var(--scanline-bg); /* Subtle scanline effect */
             color: var(--text-color);
             margin: 0;
             padding: 20px;
+            backdrop-filter: blur(2px);
         }
         
-        /* --- NEW: Header Styles --- */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
         .app-header {
             max-width: 1160px;
             margin: 0 auto 20px auto;
@@ -47,11 +53,12 @@
         }
         
         .app-header h1 {
-            font-size: 1.5em;
+            font-size: 2.5em; /* Make title bigger */
             margin: 0;
             padding: 0;
             border: none;
             color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px #fff;
         }
         
         .app-header .author {
@@ -75,7 +82,6 @@
             border-radius: 8px;
             padding: 20px;
             border: 1px solid var(--border-color);
-            /* NEW: Glow effect for cards */
             box-shadow: 0 0 20px var(--glow-color);
         }
 
@@ -112,47 +118,50 @@
         .progression-placeholder { color: var(--subtle-text); font-style: italic; }
 
         .chord-pill {
-            background-color: var(--primary-color); color: white; padding: 8px 15px;
-            border-radius: 20px; font-weight: 500; font-size: 1em; display: flex;
+            background-color: var(--primary-color); color: black; padding: 8px 15px;
+            border-radius: 20px; font-weight: 500; font-size: 1.2em; display: flex;
             align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
+            border: 1px solid var(--primary-hover);
         }
         .chord-pill:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
         .chord-name { flex-grow: 1; }
         .remove-chord {
-            background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; width: 20px; height: 20px;
+            background-color: rgba(0, 0, 0, 0.2); border-radius: 50%; width: 20px; height: 20px;
             display: flex; justify-content: center; align-items: center; font-size: 14px;
             font-weight: bold; line-height: 1; flex-shrink: 0; border: none; color: white;
             padding: 0; cursor: pointer; transition: background-color 0.2s;
         }
-        .remove-chord:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .remove-chord:hover { background-color: rgba(0, 0, 0, 0.4); }
 
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
         .btn { 
-            padding: 8px 12px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer;
-            transition: all 0.2s; font-family: 'Poppins', sans-serif;
+            padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1.2em; cursor: pointer;
+            transition: all 0.2s; font-family: 'VT323', monospace;
             display: flex; align-items: center; justify-content: center; gap: 8px;
+            color: var(--text-color); background-color: transparent;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .btn-save { background-color: var(--success-color); color: white; }
-        .btn-save:hover { background-color: #264653; }
-        .btn-clear { background-color: var(--danger-color); color: white; }
-        .btn-clear:hover { background-color: #f4a261; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background-color: var(--primary-color); color: black; }
+        .btn-save { border-color: var(--success-color); color: var(--success-color); }
+        .btn-save:hover { background-color: var(--success-color); color: black; }
+        .btn-clear { border-color: var(--danger-color); color: var(--danger-color); }
+        .btn-clear:hover { background-color: var(--danger-color); color: black; }
         #add-chord-btn {
-            background-color: #6c757d;
-            color: white;
+            border-color: #6c757d;
+            color: #6c757d;
         }
         #add-chord-btn:hover {
-             background-color: #5a6268;
+             background-color: #6c757d;
+             color: white;
         }
         .key-selector-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        #key-selector, .modal-key-selector { padding: 8px; border-radius: 5px; background-color: #333; color: white; border: 1px solid var(--border-color); font-family: 'Poppins', sans-serif;}
+        #key-selector, .modal-key-selector { padding: 8px; border-radius: 5px; background-color: var(--bg-color); color: white; border: 1px solid var(--border-color); font-family: 'VT323', monospace; font-size: 1.2em;}
 
         .chord-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
         .chord-btn {
-            background-color: #2f2f2f; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px;
-            cursor: pointer; transition: all 0.2s; font-weight: 500; border: 1px solid var(--border-color); font-size: 1em;
+            background-color: transparent; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px;
+            cursor: pointer; transition: all 0.2s; font-weight: 500; border: 1px solid var(--border-color); font-size: 1.2em;
         }
-        .chord-btn:hover { background-color: #444; transform: translateY(-2px); }
+        .chord-btn:hover { background-color: var(--primary-color); color: black; transform: translateY(-2px); }
 
         .saved-progressions-list { list-style: none; padding: 0; margin: 0; }
         .saved-item { background-color: #282828; padding: 10px 15px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -162,11 +171,11 @@
 
         .scale-selector { display: flex; flex-direction: column; gap: 10px; }
         .scale-btn {
-            background-color: #2f2f2f; color: var(--text-color); padding: 12px; text-align: left;
+            background-color: transparent; color: var(--text-color); padding: 12px; text-align: left;
             border-radius: 5px; cursor: pointer; transition: all 0.2s;
-            border: 1px solid var(--border-color); font-family: 'Poppins', sans-serif;
+            border: 1px solid var(--border-color); font-family: 'VT323', monospace; font-size: 1.2em;
         }
-        .scale-btn:hover { background-color: #444; transform: translateY(-2px); }
+        .scale-btn:hover { background-color: var(--primary-color); color: black; transform: translateY(-2px); }
         
         .box-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
         .box-btn {
@@ -177,14 +186,15 @@
 
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            overflow: auto; background-color: rgba(0, 0, 0, 0.4); animation: fadeIn 0.3s;
+            overflow: auto; background-color: rgba(0, 0, 0, 0.6); animation: fadeIn 0.3s;
             backdrop-filter: blur(5px);
         }
         .modal-content {
-            background-color: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
             margin: 10% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 320px;
             text-align: center; position: relative; animation: slideIn 0.3s;
+            box-shadow: 0 0 30px var(--glow-color);
         }
         #add-chord-modal .modal-content { max-width: 450px; text-align: left; }
         .modal-controls { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; }
@@ -192,7 +202,7 @@
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
         .form-group input {
             width: 95%; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);
-            background-color: var(--bg-color); color: var(--text-color); font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color); color: var(--text-color); font-family: 'VT323', monospace;
         }
         .close-button {
             color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px;
@@ -203,6 +213,38 @@
         #modal-chord-diagram > img, #modal-chord-diagram > svg { margin: 0 auto; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* --- SVG Diagram Animations --- */
+        @keyframes draw-in {
+          from { stroke-dasharray: 500; stroke-dashoffset: 500; }
+          to { stroke-dasharray: 500; stroke-dashoffset: 0; }
+        }
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes pulse {
+          0% { transform: scale(0.85); filter: drop-shadow(0 0 2px var(--primary-color)); }
+          70% { transform: scale(.90); filter: drop-shadow(0 0 5px var(--primary-color)); }
+          100% { transform: scale(0.95); filter: drop-shadow(0 0 2px var(--primary-color)); }
+        }
+        .chord-svg .fret-line, .chord-svg .string-line {
+            animation: draw-in 0.5s ease-out forwards;
+            animation-delay: calc(var(--animation-order) * 50ms);
+        }
+        .chord-svg .finger-dot, .chord-svg .barre {
+            transform-origin: center;
+            animation: fade-in 0.3s ease-out 0.5s backwards;
+        }
+        .chord-svg .open-string, .chord-svg .muted-string, .chord-svg .fret-number {
+            animation: fade-in 0.4s ease-out 0.6s backwards;
+        }
+        .chord-svg .finger-dot:hover {
+            fill: var(--primary-hover);
+            filter: drop-shadow(0 0 2px var(--primary-hover));
+            transform: scale(.5);
+            transition: all 0.2s ease;
+        }
     </style>
 </head>
 <body>

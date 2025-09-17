@@ -49,11 +49,9 @@ SCALE_DEFINITIONS = {
     }
 }
 
-# --- NEW: Note map for key transposition ---
 NOTE_MAP = {"E": 0, "F": 1, "F#": 2, "G": 3, "G#": 4, "A": 5, "A#": 6, "B": 7, "C": 8, "C#": 9, "D": 10, "D#": 11}
 
 def generate_svg_chord_diagram(chord_data):
-    # This function remains unchanged
     STRING_COUNT, FRET_COUNT = 6, 5
     WIDTH, HEIGHT = 250, 300
     PAD_X, PAD_Y = 40, 50
@@ -70,21 +68,21 @@ def generate_svg_chord_diagram(chord_data):
     min_fret = min(positive_frets) if positive_frets else 1
     position = min_fret if min_fret > 1 and max(positive_frets) - min_fret < FRET_COUNT else 1
 
-    svg = [f'<svg width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" xmlns="http://www.w3.org/2000/svg">',
+    svg = [f'<svg width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" xmlns="http://www.w3.org/2000/svg" class="chord-svg">',
            f'<rect width="100%" height="100%" fill="{COLOR_BG}"/>',
            f'<g transform="translate({PAD_X}, {PAD_Y})" font-family="Arial" fill="{COLOR_FG}">']
 
     if position > 1:
-        svg.append(f'<text x="-{PAD_X/2.5}" y="{FRET_SPACING*0.8}" font-size="{FRET_SPACING*0.8}" text-anchor="middle">{position}</text>')
+        svg.append(f'<text x="-{PAD_X/2.5}" y="{FRET_SPACING*0.8}" font-size="{FRET_SPACING*0.8}" text-anchor="middle" class="fret-number">{position}</text>')
 
     for i in range(FRET_COUNT + 1):
         y = i * FRET_SPACING
         stroke_width = NUT_HEIGHT if i == 0 and position == 1 else 2
-        svg.append(f'<line x1="0" y1="{y}" x2="{DIAGRAM_WIDTH}" y2="{y}" stroke="{COLOR_FG}" stroke-width="{stroke_width}" />')
+        svg.append(f'<line class="fret-line" style="--animation-order: {i+1};" x1="0" y1="{y}" x2="{DIAGRAM_WIDTH}" y2="{y}" stroke="{COLOR_FG}" stroke-width="{stroke_width}" />')
 
     for i in range(STRING_COUNT):
         x = i * STRING_SPACING
-        svg.append(f'<line x1="{x}" y1="0" x2="{x}" y2="{DIAGRAM_HEIGHT}" stroke="{COLOR_FG}" stroke-width="1" />')
+        svg.append(f'<line class="string-line" style="--animation-order: {i+1};" x1="{x}" y1="0" x2="{x}" y2="{DIAGRAM_HEIGHT}" stroke="{COLOR_FG}" stroke-width="1" />')
 
     for barre in barres:
         barre_fret = barre['fret']
@@ -94,26 +92,25 @@ def generate_svg_chord_diagram(chord_data):
         start_string_index = STRING_COUNT - barre['fromString']
         end_string_index = STRING_COUNT - barre['toString']
         x_start, x_end = start_string_index * STRING_SPACING, end_string_index * STRING_SPACING
-        svg.append(f'<rect x="{min(x_start, x_end)}" y="{y - DOT_RADIUS}" width="{abs(x_end - x_start)}" height="{DOT_RADIUS * 2}" rx="{DOT_RADIUS}" ry="{DOT_RADIUS}" fill="{COLOR_FG}" />')
+        svg.append(f'<rect class="barre" x="{min(x_start, x_end)}" y="{y - DOT_RADIUS}" width="{abs(x_end - x_start)}" height="{DOT_RADIUS * 2}" rx="{DOT_RADIUS}" ry="{DOT_RADIUS}" fill="{COLOR_FG}" />')
 
     for i, fret in enumerate(frets):
         string_x = i * STRING_SPACING
         if fret == -1:
-            svg.append(f'<g transform="translate({string_x}, {-FRET_SPACING/2}) scale(0.7)">'
+            svg.append(f'<g class="muted-string" transform="translate({string_x}, {-FRET_SPACING/2}) scale(0.7)">'
                        f'<line x1="-{OPEN_STRING_RADIUS}" y1="-{OPEN_STRING_RADIUS}" x2="{OPEN_STRING_RADIUS}" y2="{OPEN_STRING_RADIUS}" stroke="{COLOR_FG}" stroke-width="3"/>'
                        f'<line x1="-{OPEN_STRING_RADIUS}" y1="{OPEN_STRING_RADIUS}" x2="{OPEN_STRING_RADIUS}" y2="-{OPEN_STRING_RADIUS}" stroke="{COLOR_FG}" stroke-width="3"/>'
                        '</g>')
         elif fret == 0:
-            svg.append(f'<circle cx="{string_x}" cy="{-FRET_SPACING/2}" r="{OPEN_STRING_RADIUS}" stroke="{COLOR_FG}" stroke-width="2" fill="none" />')
+            svg.append(f'<circle class="open-string" cx="{string_x}" cy="{-FRET_SPACING/2}" r="{OPEN_STRING_RADIUS}" stroke="{COLOR_FG}" stroke-width="2" fill="none" />')
         elif position <= fret < position + FRET_COUNT:
             fret_index = fret - position + 1
             dot_y = (fret_index * FRET_SPACING) - (FRET_SPACING / 2)
-            svg.append(f'<circle cx="{string_x}" cy="{dot_y}" r="{DOT_RADIUS}" fill="{COLOR_FG}" />')
+            svg.append(f'<circle class="finger-dot" cx="{string_x}" cy="{dot_y}" r="{DOT_RADIUS}" fill="{COLOR_FG}" />')
 
     svg.extend(['</g>', '</svg>'])
     return "\n".join(svg)
 
-# --- MODIFIED: Upgraded function to handle key transposition ---
 def generate_svg_scale_diagram(scale_data, key, box):
     STRING_COUNT, FRET_COUNT = 6, 5
     WIDTH, HEIGHT = 250, 300
@@ -128,7 +125,6 @@ def generate_svg_scale_diagram(scale_data, key, box):
     if not pattern:
         abort(404, f"Box '{box}' not found for this scale.")
 
-    # --- Transposition Logic ---
     base_key = scale_data.get("base_key", "E")
     fret_shift = NOTE_MAP.get(key, 0) - NOTE_MAP.get(base_key, 0)
     
@@ -138,7 +134,6 @@ def generate_svg_scale_diagram(scale_data, key, box):
     all_frets = [fret for string, fret in notes if fret > 0]
     position = min(all_frets) if all_frets else 1
     
-    # Adjust diagram if scale goes high up the neck
     if all_frets and max(all_frets) - position >= FRET_COUNT:
          FRET_COUNT = max(all_frets) - position + 1
          DIAGRAM_HEIGHT = FRET_SPACING * FRET_COUNT
@@ -160,7 +155,6 @@ def generate_svg_scale_diagram(scale_data, key, box):
         svg.append(f'<line x1="{x}" y1="0" x2="{x}" y2="{DIAGRAM_HEIGHT}" stroke="{COLOR_FG}" stroke-width="1" />')
 
     for string, fret in notes:
-        # Only draw notes that are within the visible fretboard area
         if fret == 0 or (fret >= position and fret < position + FRET_COUNT + 1):
             string_x = (STRING_COUNT - string) * STRING_SPACING
             fret_index = fret - position + 1 if fret >= position else 0
@@ -201,11 +195,10 @@ def chord_diagram():
 def get_scales():
     return jsonify(SCALE_DEFINITIONS)
 
-# --- MODIFIED: Route now accepts the 'key' parameter from the frontend ---
 @app.route('/api/scale-diagram', methods=['POST'])
 def scale_diagram():
     scale_name = request.form.get('scale')
-    key = request.form.get('key', 'E') # Default to 'E' if no key is provided
+    key = request.form.get('key', 'E') 
     box = request.form.get('box', 'box1')
     
     if not scale_name: abort(400, "Scale name not provided.")
