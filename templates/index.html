@@ -24,7 +24,6 @@
         }
 
         body {
-            /* NEW: Use the Poppins font with a standard fallback */
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -55,7 +54,7 @@
             margin-top: 0;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
-            font-weight: 600; /* Bolder headings */
+            font-weight: 600;
         }
 
         .progression-display {
@@ -78,18 +77,18 @@
             color: white;
             padding: 8px 12px;
             border-radius: 15px;
-            font-weight: 500; /* Slightly lighter font weight */
+            font-weight: 500;
             font-size: 1.1em;
             display: flex;
             align-items: center;
             gap: 8px;
             cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s; /* NEW: Added transform transition */
+            transition: background-color 0.2s, transform 0.2s;
         }
         
         .chord-pill:hover {
              background-color: var(--primary-hover);
-             transform: translateY(-2px); /* NEW: Hover effect */
+             transform: translateY(-2px);
         }
         
         .chord-name { flex-grow: 1; }
@@ -116,7 +115,6 @@
         .remove-chord:hover { background-color: rgba(0, 0, 0, 0.5); }
 
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        /* NEW: Added transform transition to all buttons for hover effect */
         .btn { padding: 10px 15px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; transition: background-color 0.2s, transform 0.2s; font-family: 'Poppins', sans-serif;}
         .btn:hover { transform: translateY(-2px); }
         .btn-save { background-color: var(--success-color); color: white; }
@@ -131,7 +129,7 @@
         .chord-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
         .chord-btn { 
             background-color: #444; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px; cursor: pointer; 
-            transition: all 0.2s; /* NEW: Simplified transition for hover effect */
+            transition: all 0.2s; 
             font-weight: 500; border: none; font-family: inherit; font-size: 1em;
         }
         .chord-btn.suggested { background-color: var(--highlight-color); border: 1px solid var(--success-color); box-shadow: 0 0 10px var(--highlight-color); }
@@ -146,7 +144,7 @@
         .scale-selector { display: flex; flex-direction: column; gap: 10px; }
         .scale-btn {
             background-color: #3a3a3a; color: var(--text-color); padding: 12px; text-align: left; border-radius: 5px; cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s; /* NEW: Added transform transition */
+            transition: background-color 0.2s, transform 0.2s; 
             border: 1px solid var(--border-color); font-family: 'Poppins', sans-serif;
         }
         .scale-btn:hover { background-color: #555; transform: translateY(-2px); }
@@ -154,11 +152,10 @@
         .box-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
         .box-btn {
             background-color: #444; border: 1px solid var(--border-color); color: var(--text-color);
-            padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: background-color 0.2s, transform 0.2s; /* NEW: Added transform transition */
+            padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: background-color 0.2s, transform 0.2s; 
         }
         .box-btn.active, .box-btn:hover { background-color: var(--primary-color); border-color: var(--primary-hover); transform: translateY(-1px); }
 
-        /* NEW: Added fade-in animation for the modal */
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
             overflow: auto; background-color: rgba(0, 0, 0, 0.7); animation: fadeIn 0.3s;
@@ -167,7 +164,7 @@
         .modal-content {
             background-color: var(--surface-color); margin: 10% auto; padding: 20px;
             border: 1px solid var(--border-color); border-radius: 8px; width: 80%;
-            max-width: 320px; /* Slightly wider for new controls */
+            max-width: 320px;
             text-align: center; position: relative; animation: slideIn 0.3s;
         }
         
@@ -272,98 +269,23 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const DIATONIC_CHORDS = {
-                'C':  ['C', 'Dm', 'Em', 'F', 'G', 'Am'], 'G':  ['G', 'Am', 'Bm', 'C', 'D', 'Em'], 'D':  ['D', 'Em', 'F#m', 'G', 'A', 'Bm'], 'A':  ['A', 'Bm', 'C#m', 'D', 'E', 'F#m'],
-                'E':  ['E', 'F#m', 'G#m', 'A', 'B', 'C#m'], 'B':  ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m'], 'F#': ['F#', 'G#m', 'A#m', 'B', 'C#', 'D#m'], 'C#': ['C#', 'D#m', 'E#m', 'F#', 'G#', 'A#m'],
-                'F':  ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm'], 'Bb': ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm'], 'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm'], 'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm']
-            };
+            const DIATONIC_CHORDS = { 'C': ['C', 'Dm', 'Em', 'F', 'G', 'Am'], 'G': ['G', 'Am', 'Bm', 'C', 'D', 'Em'], 'D': ['D', 'Em', 'F#m', 'G', 'A', 'Bm'], 'A': ['A', 'Bm', 'C#m', 'D', 'E', 'F#m'], 'E': ['E', 'F#m', 'G#m', 'A', 'B', 'C#m'], 'B': ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m'], 'F#': ['F#', 'G#m', 'A#m', 'B', 'C#', 'D#m'], 'C#': ['C#', 'D#m', 'E#m', 'F#', 'G#', 'A#m'], 'F': ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm'], 'Bb': ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm'], 'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm'], 'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm'] };
             const ALL_KEYS = ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#"];
-
             let currentProgression = [], savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [], allChordsData = {}, allScalesData = {};
-
-            const chordSelector = document.getElementById('chord-selector'), progressionDisplay = document.getElementById('progression-display'),
-                  saveBtn = document.getElementById('save-btn'), clearBtn = document.getElementById('clear-btn'),
-                  savedList = document.getElementById('saved-progressions-list'), keySelector = document.getElementById('key-selector'),
-                  suggestBtn = document.getElementById('suggest-btn'), chordModal = document.getElementById('chord-modal'),
-                  closeModalBtn = document.getElementById('close-modal-btn'), modalTitle = document.getElementById('modal-chord-title'),
-                  modalDiagram = document.getElementById('modal-chord-diagram'), addChordBtn = document.getElementById('add-chord-btn'),
-                  addChordModal = document.getElementById('add-chord-modal'), closeAddModalBtn = document.getElementById('close-add-modal-btn'),
-                  addChordForm = document.getElementById('add-chord-form'), addChordError = document.getElementById('add-chord-error'),
-                  scaleSelector = document.getElementById('scale-selector'), modalKeySelector = document.getElementById('modal-key-selector');
-            
-            const renderChordButtons = () => { /* remains the same */ };
-            const renderScaleButtons = () => { /* remains the same */ };
-            const renderKeySelector = () => { /* remains the same */ };
-            const renderProgression = () => { /* remains the same */ };
-            const renderSavedProgressions = () => { /* remains the same */ };
-            const addChordToProgression = (chord) => { /* remains the same */ };
-            const removeChordFromProgression = (index) => { /* remains the same */ };
-            const saveCurrentProgression = () => { /* remains the same */ };
-            const handleSavedListClick = (e) => { /* remains the same */ };
-            const highlightSuggestedChords = () => { /* remains the same */ };
-
-            const openChordModal = async (chordName) => {
-                document.getElementById('modal-box-selector').innerHTML = '';
-                modalKeySelector.style.display = 'none'; // Hide key selector for chords
-                modalTitle.textContent = allChordsData[chordName]?.title || chordName;
-                modalDiagram.innerHTML = 'Loading...';
-                chordModal.style.display = 'block';
-                try {
-                    const formData = new FormData();
-                    formData.append('chord', chordName);
-                    const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData });
-                    if (!response.ok) throw new Error(await response.text());
-                    modalDiagram.innerHTML = await response.text();
-                } catch (error) {
-                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`;
-                }
-            };
-            
-            // --- MODIFIED: Upgraded function to handle key transposition ---
-            const openScaleModal = async (scaleName, key = 'E', box = 'box1') => {
-                const definition = allScalesData[scaleName];
-                modalTitle.textContent = definition ? `${key} ${definition.title} - Box ${box.slice(-1)}` : `${key} ${scaleName}`;
-                modalDiagram.innerHTML = 'Loading...';
-                chordModal.style.display = 'block';
-
-                const boxSelector = document.getElementById('modal-box-selector');
-                boxSelector.innerHTML = '';
-                if (definition?.pattern) {
-                    Object.keys(definition.pattern).forEach(boxKey => {
-                        const button = document.createElement('button');
-                        button.className = `box-btn ${boxKey === box ? 'active' : ''}`;
-                        button.textContent = `Box ${boxKey.slice(-1)}`;
-                        button.onclick = () => openScaleModal(scaleName, key, boxKey);
-                        boxSelector.appendChild(button);
-                    });
-                }
-                
-                modalKeySelector.style.display = 'inline-block';
-                modalKeySelector.innerHTML = '';
-                ALL_KEYS.forEach(k => {
-                    const option = document.createElement('option');
-                    option.value = k;
-                    option.textContent = k;
-                    if (k === key) option.selected = true;
-                    modalKeySelector.appendChild(option);
-                });
-                modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value, box);
-
-                try {
-                    const formData = new FormData();
-                    formData.append('scale', scaleName);
-                    formData.append('key', key);
-                    formData.append('box', box);
-                    const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData });
-                    if (!response.ok) throw new Error(await response.text());
-                    modalDiagram.innerHTML = await response.text();
-                } catch (error) {
-                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`;
-                }
-            };
-
+            const chordSelector = document.getElementById('chord-selector'), progressionDisplay = document.getElementById('progression-display'), saveBtn = document.getElementById('save-btn'), clearBtn = document.getElementById('clear-btn'), savedList = document.getElementById('saved-progressions-list'), keySelector = document.getElementById('key-selector'), suggestBtn = document.getElementById('suggest-btn'), chordModal = document.getElementById('chord-modal'), closeModalBtn = document.getElementById('close-modal-btn'), modalTitle = document.getElementById('modal-chord-title'), modalDiagram = document.getElementById('modal-chord-diagram'), addChordBtn = document.getElementById('add-chord-btn'), addChordModal = document.getElementById('add-chord-modal'), closeAddModalBtn = document.getElementById('close-add-modal-btn'), addChordForm = document.getElementById('add-chord-form'), addChordError = document.getElementById('add-chord-error'), scaleSelector = document.getElementById('scale-selector'), modalKeySelector = document.getElementById('modal-key-selector');
+            const renderChordButtons = () => { chordSelector.innerHTML = ''; Object.keys(allChordsData).sort().forEach(name => { const btn = document.createElement('button'); btn.className = 'chord-btn'; btn.textContent = name; btn.dataset.chord = name; chordSelector.appendChild(btn); }); };
+            const renderScaleButtons = () => { scaleSelector.innerHTML = ''; for (const key in allScalesData) { const scale = allScalesData[key]; const btn = document.createElement('button'); btn.className = 'scale-btn'; btn.textContent = scale.title; btn.dataset.scale = key; scaleSelector.appendChild(btn); } };
+            const renderKeySelector = () => { keySelector.innerHTML = ''; Object.keys(DIATONIC_CHORDS).forEach(key => { const opt = document.createElement('option'); opt.value = key; opt.textContent = key; keySelector.appendChild(opt); }); };
+            const renderProgression = () => { progressionDisplay.innerHTML = ''; if (currentProgression.length === 0) { progressionDisplay.innerHTML = '<span class="progression-placeholder">Select chords...</span>'; return; } currentProgression.forEach((chord, i) => { const pill = document.createElement('div'); pill.className = 'chord-pill'; pill.dataset.chordName = chord; pill.innerHTML = `<span class="chord-name">${chord}</span><button class="remove-chord" data-index="${i}">&times;</button>`; progressionDisplay.appendChild(pill); }); };
+            const renderSavedProgressions = () => { savedList.innerHTML = ''; if (savedProgressions.length === 0) { savedList.innerHTML = '<li>No saved progressions.</li>'; return; } savedProgressions.forEach((prog, i) => { const item = document.createElement('li'); item.className = 'saved-item'; item.innerHTML = `<span class="saved-chords">${prog.join(' - ')}</span><div><button data-action="load" data-index="${i}">⬆️</button><button data-action="delete" data-index="${i}">🗑️</button></div>`; savedList.appendChild(item); }); };
+            const addChordToProgression = (chord) => { currentProgression.push(chord); renderProgression(); };
+            const removeChordFromProgression = (index) => { currentProgression.splice(index, 1); renderProgression(); };
+            const saveCurrentProgression = () => { if (currentProgression.length > 0) { savedProgressions.push([...currentProgression]); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
+            const handleSavedListClick = (e) => { const target = e.target.closest('button'); if (!target) return; const index = parseInt(target.dataset.index); if (target.dataset.action === 'load') { currentProgression = [...savedProgressions[index]]; renderProgression(); } else if (target.dataset.action === 'delete') { savedProgressions.splice(index, 1); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
+            const highlightSuggestedChords = () => { const suggested = DIATONIC_CHORDS[keySelector.value] || []; document.querySelectorAll('.chord-btn').forEach(btn => btn.classList.toggle('suggested', suggested.includes(btn.dataset.chord))); };
+            const openChordModal = async (chordName) => { document.getElementById('modal-box-selector').innerHTML = ''; modalKeySelector.style.display = 'none'; modalTitle.textContent = allChordsData[chordName]?.title || chordName; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; try { const formData = new FormData(); formData.append('chord', chordName); const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
+            const openScaleModal = async (scaleName, key = 'E', box = 'box1') => { const definition = allScalesData[scaleName]; modalTitle.textContent = definition ? `${key} ${definition.title} - Box ${box.slice(-1)}` : `${key} ${scaleName}`; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; const boxSelector = document.getElementById('modal-box-selector'); boxSelector.innerHTML = ''; if (definition?.pattern) { Object.keys(definition.pattern).forEach(boxKey => { const button = document.createElement('button'); button.className = `box-btn ${boxKey === box ? 'active' : ''}`; button.textContent = `Box ${boxKey.slice(-1)}`; button.onclick = () => openScaleModal(scaleName, key, boxKey); boxSelector.appendChild(button); }); } modalKeySelector.style.display = 'inline-block'; modalKeySelector.innerHTML = ''; ALL_KEYS.forEach(k => { const option = document.createElement('option'); option.value = k; option.textContent = k; if (k === key) option.selected = true; modalKeySelector.appendChild(option); }); modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value, box); try { const formData = new FormData(); formData.append('scale', scaleName); formData.append('key', key); formData.append('box', box); const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
             const closeModal = () => { chordModal.style.display = 'none'; };
-
             const initializeApp = async () => {
                 try {
                     const [chordsResponse, scalesResponse] = await Promise.all([fetch('/api/chords'), fetch('/api/scales')]);
@@ -371,21 +293,20 @@
                     if (!scalesResponse.ok) throw new Error('Failed to load scales.');
                     allChordsData = await chordsResponse.json();
                     allScalesData = await scalesResponse.json();
-                    // Simplified render calls for brevity
-                    Object.assign(this, { renderChordButtons, renderScaleButtons, renderKeySelector, renderProgression, renderSavedProgressions }).values().forEach(fn => fn());
+                    // --- CORRECTED LINE ---
+                    renderChordButtons();
+                    renderScaleButtons();
+                    renderKeySelector();
+                    renderProgression();
+                    renderSavedProgressions();
                 } catch (error) {
                     console.error("Initialization failed:", error);
                     chordSelector.innerHTML = `<p style="color: var(--danger-color);">Could not load app data.</p>`;
                 }
             };
-            
             chordSelector.addEventListener('click', e => e.target.classList.contains('chord-btn') && addChordToProgression(e.target.dataset.chord));
             scaleSelector.addEventListener('click', e => e.target.classList.contains('scale-btn') && openScaleModal(e.target.dataset.scale));
-            progressionDisplay.addEventListener('click', e => {
-                const pill = e.target.closest('.chord-pill');
-                if (e.target.classList.contains('remove-chord')) removeChordFromProgression(parseInt(e.target.dataset.index));
-                else if (pill) openChordModal(pill.dataset.chordName);
-            });
+            progressionDisplay.addEventListener('click', e => { const pill = e.target.closest('.chord-pill'); if (e.target.classList.contains('remove-chord')) removeChordFromProgression(parseInt(e.target.dataset.index)); else if (pill) openChordModal(pill.dataset.chordName); });
             saveBtn.addEventListener('click', saveCurrentProgression);
             clearBtn.addEventListener('click', () => { currentProgression = []; renderProgression(); });
             suggestBtn.addEventListener('click', highlightSuggestedChords);
@@ -395,26 +316,7 @@
             addChordBtn.addEventListener('click', () => { addChordForm.reset(); addChordError.textContent = ''; document.getElementById('barre-details').style.display = 'none'; addChordModal.style.display = 'block'; });
             closeAddModalBtn.addEventListener('click', () => addChordModal.style.display = 'none');
             document.getElementById('has-barre').addEventListener('change', e => { document.getElementById('barre-details').style.display = e.target.checked ? 'block' : 'none'; });
-            addChordForm.addEventListener('submit', async e => {
-                e.preventDefault();
-                addChordError.textContent = '';
-                const frets = Array.from(document.querySelectorAll('.fret-input')).map(input => parseInt(input.value, 10));
-                const barres = document.getElementById('has-barre').checked ? [{
-                    fret: parseInt(document.getElementById('barre-fret').value, 10),
-                    fromString: parseInt(document.getElementById('barre-from').value, 10),
-                    toString: parseInt(document.getElementById('barre-to').value, 10)
-                }] : [];
-                const payload = { name: document.getElementById('new-chord-name').value, title: document.getElementById('new-chord-title').value, frets, barres };
-                try {
-                    const response = await fetch('/api/chords', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                    if (!response.ok) throw new Error(await response.text());
-                    addChordModal.style.display = 'none';
-                    await initializeApp();
-                } catch (error) {
-                    addChordError.textContent = `Error: ${error.message}`;
-                }
-            });
-
+            addChordForm.addEventListener('submit', async e => { e.preventDefault(); addChordError.textContent = ''; const frets = Array.from(document.querySelectorAll('.fret-input')).map(input => parseInt(input.value, 10)); const barres = document.getElementById('has-barre').checked ? [{ fret: parseInt(document.getElementById('barre-fret').value, 10), fromString: parseInt(document.getElementById('barre-from').value, 10), toString: parseInt(document.getElementById('barre-to').value, 10) }] : []; const payload = { name: document.getElementById('new-chord-name').value, title: document.getElementById('new-chord-title').value, frets, barres }; try { const response = await fetch('/api/chords', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) throw new Error(await response.text()); addChordModal.style.display = 'none'; await initializeApp(); } catch (error) { addChordError.textContent = `Error: ${error.message}`; } });
             initializeApp();
         });
     </script>
