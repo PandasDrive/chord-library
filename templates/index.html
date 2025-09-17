@@ -3,39 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Chord Progression Builder</title>
+    <title>Chord Architect</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #1a1a1a;
-            --surface-color: #2c2c2c;
-            --primary-color: #007bff;
-            --primary-hover: #0056b3;
-            --text-color: #f0f0f0;
-            --subtle-text: #a0a0a0;
-            --border-color: #444;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --highlight-color: rgba(40, 167, 69, 0.3);
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #2a9d8f; /* A modern teal */
+            --primary-hover: #264653; /* A darker teal */
+            --text-color: #e0e0e0;
+            --subtle-text: #888;
+            --border-color: #333;
+            --success-color: #2a9d8f;
+            --danger-color: #e76f51;
+            --glow-color: rgba(42, 157, 143, 0.1);
         }
 
         body {
             font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 40px 40px;
             color: var(--text-color);
             margin: 0;
             padding: 20px;
+        }
+        
+        /* --- NEW: Header Styles --- */
+        .app-header {
+            max-width: 1160px;
+            margin: 0 auto 20px auto;
+            padding: 10px 20px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .app-header h1 {
+            font-size: 1.5em;
+            margin: 0;
+            padding: 0;
+            border: none;
+            color: var(--primary-color);
+        }
+        
+        .app-header .author {
+            font-size: 0.9em;
+            color: var(--subtle-text);
         }
 
         .app-container {
             width: 100%;
             max-width: 1200px;
+            margin: auto;
             display: grid;
             grid-template-columns: 1fr 350px;
             gap: 20px;
@@ -48,9 +75,11 @@
             border-radius: 8px;
             padding: 20px;
             border: 1px solid var(--border-color);
+            /* NEW: Glow effect for cards */
+            box-shadow: 0 0 20px var(--glow-color);
         }
 
-        h1, h2, h3 {
+        h2, h3 {
             margin-top: 0;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 10px;
@@ -69,141 +98,102 @@
             align-items: center;
             border: 1px solid var(--border-color);
         }
-
+        
         .progression-diagrams {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: flex-start;
-            align-items: center;
-            min-height: 120px;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: var(--bg-color);
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
+            display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start;
+            align-items: center; min-height: 120px; margin-bottom: 20px; padding: 10px;
+            background-color: var(--bg-color); border-radius: 6px; border: 1px solid var(--border-color);
         }
-
         .progression-diagrams svg {
-            width: 100px;
-            height: 120px;
-            background-color: var(--surface-color);
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
+            width: 100px; height: 120px; background-color: var(--surface-color);
+            border-radius: 6px; border: 1px solid var(--border-color);
         }
         
         .progression-placeholder { color: var(--subtle-text); font-style: italic; }
 
         .chord-pill {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 15px;
-            font-weight: 500;
-            font-size: 1.1em;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
+            background-color: var(--primary-color); color: white; padding: 8px 15px;
+            border-radius: 20px; font-weight: 500; font-size: 1em; display: flex;
+            align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
         }
-        
-        .chord-pill:hover {
-             background-color: var(--primary-hover);
-             transform: translateY(-2px);
-        }
-        
+        .chord-pill:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
         .chord-name { flex-grow: 1; }
-
         .remove-chord {
-            background-color: rgba(0, 0, 0, 0.3);
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-            font-weight: bold;
-            line-height: 1;
-            flex-shrink: 0;
-            border: none;
-            color: white;
-            padding: 0;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; width: 20px; height: 20px;
+            display: flex; justify-content: center; align-items: center; font-size: 14px;
+            font-weight: bold; line-height: 1; flex-shrink: 0; border: none; color: white;
+            padding: 0; cursor: pointer; transition: background-color 0.2s;
         }
-        
-        .remove-chord:hover { background-color: rgba(0, 0, 0, 0.5); }
+        .remove-chord:hover { background-color: rgba(255, 255, 255, 0.2); }
 
         .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn { padding: 10px 15px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer; transition: background-color 0.2s, transform 0.2s; font-family: 'Poppins', sans-serif;}
-        .btn:hover { transform: translateY(-2px); }
+        .btn { 
+            padding: 8px 12px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer;
+            transition: all 0.2s; font-family: 'Poppins', sans-serif;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
         .btn-save { background-color: var(--success-color); color: white; }
-        .btn-save:hover { background-color: #218838; }
+        .btn-save:hover { background-color: #264653; }
         .btn-clear { background-color: var(--danger-color); color: white; }
-        .btn-clear:hover { background-color: #c82333; }
+        .btn-clear:hover { background-color: #f4a261; }
         .btn-suggest { background-color: #6c757d; color: white; }
         .btn-suggest:hover { background-color: #5a6268; }
         .key-selector-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
         #key-selector, .modal-key-selector { padding: 8px; border-radius: 5px; background-color: #333; color: white; border: 1px solid var(--border-color); font-family: 'Poppins', sans-serif;}
 
         .chord-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
-        .chord-btn { 
-            background-color: #444; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px; cursor: pointer; 
-            transition: all 0.2s; 
-            font-weight: 500; border: none; font-family: inherit; font-size: 1em;
+        .chord-btn {
+            background-color: #2f2f2f; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px;
+            cursor: pointer; transition: all 0.2s; font-weight: 500; border: 1px solid var(--border-color); font-size: 1em;
         }
-        .chord-btn.suggested { background-color: var(--highlight-color); border: 1px solid var(--success-color); box-shadow: 0 0 10px var(--highlight-color); }
-        .chord-btn:hover { background-color: #555; transform: translateY(-2px); }
+        .chord-btn.suggested { background-color: var(--glow-color); border: 1px solid var(--success-color); box-shadow: 0 0 10px var(--glow-color); }
+        .chord-btn:hover { background-color: #444; transform: translateY(-2px); }
 
         .saved-progressions-list { list-style: none; padding: 0; margin: 0; }
-        .saved-item { background-color: #333; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .saved-item { background-color: #282828; padding: 10px 15px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .saved-chords { font-family: monospace; font-size: 1.1em; }
-        .saved-item-actions button { background: none; border: none; color: var(--text-color); cursor: pointer; font-size: 1.2em; margin-left: 10px; }
+        .saved-item-actions button { background: none; border: none; color: #888; cursor: pointer; font-size: 1.2em; margin-left: 10px; transition: color 0.2s; }
         .saved-item-actions button:hover { color: var(--primary-color); }
 
         .scale-selector { display: flex; flex-direction: column; gap: 10px; }
         .scale-btn {
-            background-color: #3a3a3a; color: var(--text-color); padding: 12px; text-align: left; border-radius: 5px; cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s; 
+            background-color: #2f2f2f; color: var(--text-color); padding: 12px; text-align: left;
+            border-radius: 5px; cursor: pointer; transition: all 0.2s;
             border: 1px solid var(--border-color); font-family: 'Poppins', sans-serif;
         }
-        .scale-btn:hover { background-color: #555; transform: translateY(-2px); }
+        .scale-btn:hover { background-color: #444; transform: translateY(-2px); }
         
         .box-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
         .box-btn {
             background-color: #444; border: 1px solid var(--border-color); color: var(--text-color);
-            padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: background-color 0.2s, transform 0.2s; 
+            padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.2s;
         }
         .box-btn.active, .box-btn:hover { background-color: var(--primary-color); border-color: var(--primary-hover); transform: translateY(-1px); }
 
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            overflow: auto; background-color: rgba(0, 0, 0, 0.7); animation: fadeIn 0.3s;
+            overflow: auto; background-color: rgba(0, 0, 0, 0.4); animation: fadeIn 0.3s;
+            /* NEW: Glassmorphism effect */
+            backdrop-filter: blur(5px);
         }
-
         .modal-content {
-            background-color: var(--surface-color); margin: 10% auto; padding: 20px;
-            border: 1px solid var(--border-color); border-radius: 8px; width: 80%;
-            max-width: 320px;
+            background-color: rgba(30, 30, 30, 0.8); /* Semi-transparent background for glass effect */
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin: 10% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 320px;
             text-align: center; position: relative; animation: slideIn 0.3s;
         }
-        
         #add-chord-modal .modal-content { max-width: 450px; text-align: left; }
-        
         .modal-controls { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; }
-
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input[type="text"], .form-group input[type="number"] {
+        .form-group input {
             width: 95%; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);
             background-color: var(--bg-color); color: var(--text-color); font-family: 'Poppins', sans-serif;
         }
-
         .close-button {
-            color: #aaa; position: absolute; top: 10px; right: 20px;
-            font-size: 28px; font-weight: bold; cursor: pointer;
+            color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px;
+            font-weight: bold; cursor: pointer; transition: color 0.2s;
         }
         .close-button:hover, .close-button:focus { color: white; }
         #modal-chord-diagram { margin-top: 15px; }
@@ -213,6 +203,12 @@
     </style>
 </head>
 <body>
+
+    <header class="app-header">
+        <h1>Chord Architect</h1>
+        <span class="author">By Erin Lord</span>
+    </header>
+
     <div class="app-container">
         <main class="main-content">
             <h2>Current Progression</h2>
@@ -221,8 +217,14 @@
             </div>
             <div id="progression-diagrams" class="progression-diagrams"></div>
             <div class="controls">
-                <button id="save-btn" class="btn btn-save">💾 Save Progression</button>
-                <button id="clear-btn" class="btn btn-clear">🗑️ Clear</button>
+                <button id="save-btn" class="btn btn-save">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    Save
+                </button>
+                <button id="clear-btn" class="btn btn-clear">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    Clear
+                </button>
             </div>
             <hr>
             <h2>Saved Progressions</h2>
@@ -242,6 +244,7 @@
             <div id="scale-selector" class="scale-selector"></div>
         </aside>
     </div>
+    
     <div id="chord-modal" class="modal">
         <div class="modal-content">
             <span id="close-modal-btn" class="close-button">&times;</span>
