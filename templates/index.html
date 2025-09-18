@@ -12,23 +12,23 @@
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600&family=VT323&display=swap');
 
         :root {
-            --bg-color: #0d0221; /* Deep space blue/purple */
-            --surface-color: rgba(26, 20, 53, 0.8); /* Translucent dark purple */
-            --primary-color: #00f0ff; /* Glowing cyan */
-            --primary-hover: #9dffff; /* Lighter cyan for hover */
+            --bg-color: #0d0221;
+            --surface-color: rgba(26, 20, 53, 0.8);
+            --primary-color: #00f0ff;
+            --primary-hover: #9dffff;
             --text-color: #f0f0f0;
             --subtle-text: #8b949e;
-            --border-color: rgba(0, 240, 255, 0.3); /* Faint cyan border */
-            --success-color: #00ff85; /* Neon green */
-            --danger-color: #ff0055; /* Hot pink/magenta */
-            --glow-color: rgba(0, 240, 255, 0.15); /* Main glow effect color */
+            --border-color: rgba(0, 240, 255, 0.3);
+            --success-color: #00ff85;
+            --danger-color: #ff0055;
+            --glow-color: rgba(0, 240, 255, 0.15);
             --scanline-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%2300f0ff" fill-opacity="0.05" d="M0 2h4v1H0z"/></svg>');
         }
 
         body {
-            font-family: 'VT323', monospace; /* Pixel/retro font */
+            font-family: 'VT323', monospace;
             background-color: var(--bg-color);
-            background-image: var(--scanline-bg); /* Subtle scanline effect */
+            background-image: var(--scanline-bg);
             color: var(--text-color);
             margin: 0;
             padding: 20px;
@@ -53,12 +53,12 @@
         }
         
         .app-header h1 {
-            font-size: 2.5em; /* Make title bigger */
+            font-size: 2.5em;
             margin: 0;
             padding: 0;
             border: none;
             color: var(--primary-color);
-            text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px #fff;
+            text-shadow: 0 0 5px var(--primary-color);
         }
         
         .app-header .author {
@@ -177,13 +177,6 @@
         }
         .scale-btn:hover { background-color: var(--primary-color); color: black; transform: translateY(-2px); }
         
-        .box-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
-        .box-btn {
-            background-color: #444; border: 1px solid var(--border-color); color: var(--text-color);
-            padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.2s;
-        }
-        .box-btn.active, .box-btn:hover { background-color: var(--primary-color); border-color: var(--primary-hover); transform: translateY(-1px); }
-
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
             overflow: auto; background-color: rgba(0, 0, 0, 0.6); animation: fadeIn 0.3s;
@@ -192,7 +185,7 @@
         .modal-content {
             background-color: var(--surface-color);
             border: 1px solid var(--border-color);
-            margin: 10% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 320px;
+            margin: 10% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 850px; /* Wider modal */
             text-align: center; position: relative; animation: slideIn 0.3s;
             box-shadow: 0 0 30px var(--glow-color);
         }
@@ -209,8 +202,7 @@
             font-weight: bold; cursor: pointer; transition: color 0.2s;
         }
         .close-button:hover, .close-button:focus { color: white; }
-        #modal-chord-diagram { margin-top: 15px; }
-        #modal-chord-diagram > img, #modal-chord-diagram > svg { margin: 0 auto; }
+        #modal-chord-diagram { margin-top: 15px; display: flex; justify-content: center; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -222,11 +214,6 @@
         @keyframes fade-in {
             from { opacity: 0; }
             to { opacity: 1; }
-        }
-        @keyframes pulse {
-          0% { transform: scale(0.85); filter: drop-shadow(0 0 2px var(--primary-color)); }
-          70% { transform: scale(.90); filter: drop-shadow(0 0 5px var(--primary-color)); }
-          100% { transform: scale(0.95); filter: drop-shadow(0 0 2px var(--primary-color)); }
         }
         .chord-svg .fret-line, .chord-svg .string-line {
             animation: draw-in 0.5s ease-out forwards;
@@ -241,9 +228,23 @@
         }
         .chord-svg .finger-dot:hover {
             fill: var(--primary-hover);
-            filter: drop-shadow(0 0 2px var(--primary-hover));
-            transform: scale(.5);
+            filter: drop-shadow(0 0 8px var(--primary-hover));
+            transform: scale(1.1);
             transition: all 0.2s ease;
+        }
+
+        /* --- Scale Heatmap Styles --- */
+        .scale-svg .scale-note {
+            fill: var(--primary-color);
+            filter: drop-shadow(0 0 4px var(--primary-color));
+            opacity: 0.7;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .scale-svg .root-note {
+            fill: var(--success-color); /* Bright green for root notes */
+            filter: drop-shadow(0 0 8px var(--success-color));
+            opacity: 1;
+            animation: fadeIn 0.5s ease-out;
         }
     </style>
 </head>
@@ -294,7 +295,6 @@
             <span id="close-modal-btn" class="close-button">&times;</span>
             <h2 id="modal-chord-title"></h2>
             <div class="modal-controls">
-                 <div id="modal-box-selector" class="box-selector"></div>
                  <select id="modal-key-selector" class="modal-key-selector" style="display: none;"></select>
             </div>
             <div id="modal-chord-diagram"></div>
@@ -358,7 +358,7 @@
             
             const renderChordButtons = () => {
                 const selectedKey = keySelector.value;
-                const chordsToShow = selectedKey === 'all' ? Object.keys(allChordsData) : DIATONIC_CHORDS[selectedKey];
+                const chordsToShow = selectedKey === 'all' ? Object.keys(allChordsData).sort() : DIATONIC_CHORDS[selectedKey];
                 
                 chordSelector.innerHTML = '';
                 if (chordsToShow) {
@@ -417,8 +417,8 @@
             const removeChordFromProgression = (index) => { currentProgression.splice(index, 1); renderProgression(); };
             const saveCurrentProgression = () => { if (currentProgression.length > 0) { savedProgressions.push([...currentProgression]); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
             const handleSavedListClick = (e) => { const target = e.target.closest('button'); if (!target) return; const index = parseInt(target.dataset.index); if (target.dataset.action === 'load') { currentProgression = [...savedProgressions[index]]; renderProgression(); } else if (target.dataset.action === 'delete') { savedProgressions.splice(index, 1); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
-            const openChordModal = async (chordName) => { document.getElementById('modal-box-selector').innerHTML = ''; modalKeySelector.style.display = 'none'; modalTitle.textContent = allChordsData[chordName]?.title || chordName; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; try { const formData = new FormData(); formData.append('chord', chordName); const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
-            const openScaleModal = async (scaleName, key = 'E', box = 'box1') => { const definition = allScalesData[scaleName]; modalTitle.textContent = definition ? `${key} ${definition.title} - Box ${box.slice(-1)}` : `${key} ${scaleName}`; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; const boxSelector = document.getElementById('modal-box-selector'); boxSelector.innerHTML = ''; if (definition?.pattern) { Object.keys(definition.pattern).forEach(boxKey => { const button = document.createElement('button'); button.className = `box-btn ${boxKey === box ? 'active' : ''}`; button.textContent = `Box ${boxKey.slice(-1)}`; button.onclick = () => openScaleModal(scaleName, key, boxKey); boxSelector.appendChild(button); }); } modalKeySelector.style.display = 'inline-block'; modalKeySelector.innerHTML = ''; ALL_KEYS.forEach(k => { const option = document.createElement('option'); option.value = k; option.textContent = k; if (k === key) option.selected = true; modalKeySelector.appendChild(option); }); modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value, box); try { const formData = new FormData(); formData.append('scale', scaleName); formData.append('key', key); formData.append('box', box); const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
+            const openChordModal = async (chordName) => { modalKeySelector.style.display = 'none'; modalTitle.textContent = allChordsData[chordName]?.title || chordName; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; try { const formData = new FormData(); formData.append('chord', chordName); const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
+            const openScaleModal = async (scaleName, key = 'E') => { const definition = allScalesData[scaleName]; modalTitle.textContent = definition ? `${key} ${definition.title}` : `${key} ${scaleName}`; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; modalKeySelector.style.display = 'inline-block'; modalKeySelector.innerHTML = ''; ALL_KEYS.forEach(k => { const option = document.createElement('option'); option.value = k; option.textContent = k; if (k === key) option.selected = true; modalKeySelector.appendChild(option); }); modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value); try { const formData = new FormData(); formData.append('scale', scaleName); formData.append('key', key); const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
             const closeModal = () => { chordModal.style.display = 'none'; };
             const initializeApp = async () => {
                 try {

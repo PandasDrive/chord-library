@@ -86,25 +86,30 @@ CHORD_DEFINITIONS = {
 
 
 SCALE_DEFINITIONS = {
-    "minor_pentatonic": {
-        "title": "Minor Pentatonic",
-        "description": "A versatile 5-note scale, essential for rock and blues.",
-        "base_key": "E",
-        "pattern": {
-            "box1": { "frets": [(6,0), (6,3), (5,0), (5,2), (4,0), (4,2), (3,0), (3,2), (2,0), (2,3), (1,0), (1,3)], "roots": [(6,0), (4,2), (1,0)] },
-            "box2": { "frets": [(6,3), (6,5), (5,2), (5,5), (4,2), (4,5), (3,2), (3,4), (2,3), (2,5), (1,3), (1,5)], "roots": [(5,5), (3,2), (1,5)] },
-            "box3": { "frets": [(6,5), (6,8), (5,5), (5,7), (4,5), (4,7), (3,4), (3,7), (2,5), (2,8), (1,5), (1,8)], "roots": [(6,8), (4,5), (2,8), (1,5)] },
-            "box4": { "frets": [(6,8), (6,10), (5,7), (5,10), (4,7), (4,9), (3,7), (3,9), (2,8), (2,10), (1,8), (1,10)],"roots": [(6,8), (4,7), (2,10)] },
-            "box5": { "frets": [(6,10), (6,12), (5,10), (5,12), (4,9), (4,12), (3,9), (3,12), (2,10), (2,12), (1,10), (1,12)],"roots": [(6,12), (5,10), (3,12), (1,10)] }
-        }
-    },
     "major_scale": {
         "title": "Major Scale (Ionian)",
         "description": "The foundation of Western music, with a happy sound.",
-        "base_key": "E",
-        "pattern": {
-            "box1": {"root_string": 6, "frets": [(6,0), (6,2), (6,4), (5,0), (5,2), (5,4), (4,1), (4,2), (4,4), (3,1), (3,2), (3,4), (2,2), (2,4), (2,5), (1,2), (1,4), (1,5)], "roots": [(6,0), (5,2), (4,4)]}
-        }
+        "intervals": [0, 2, 4, 5, 7, 9, 11] # In semitones from the root
+    },
+    "minor_pentatonic": {
+        "title": "Minor Pentatonic",
+        "description": "A versatile 5-note scale, essential for rock and blues.",
+        "intervals": [0, 3, 5, 7, 10]
+    },
+    "aeolian": {
+        "title": "Natural Minor (Aeolian)",
+        "description": "The standard minor scale, creates a sad or serious mood.",
+        "intervals": [0, 2, 3, 5, 7, 8, 10]
+    },
+    "dorian": {
+        "title": "Dorian Mode",
+        "description": "A minor-type scale with a brighter, jazzy or Celtic feel.",
+        "intervals": [0, 2, 3, 5, 7, 9, 10]
+    },
+    "harmonic_minor": {
+        "title": "Harmonic Minor",
+        "description": "A minor scale with a raised 7th, creating a dramatic, classical, or exotic sound.",
+        "intervals": [0, 2, 3, 5, 7, 8, 11]
     }
 }
 
@@ -170,57 +175,55 @@ def generate_svg_chord_diagram(chord_data):
     svg.extend(['</g>', '</svg>'])
     return "\n".join(svg)
 
-def generate_svg_scale_diagram(scale_data, key, box):
-    STRING_COUNT, FRET_COUNT = 6, 5
-    WIDTH, HEIGHT = 250, 300
-    PAD_X, PAD_Y = 40, 50
+def generate_svg_scale_diagram(scale_data, key):
+    STRING_COUNT, FRET_COUNT = 6, 12
+    WIDTH, HEIGHT = 800, 200
+    PAD_X, PAD_Y = 50, 30
     DIAGRAM_WIDTH, DIAGRAM_HEIGHT = WIDTH - (PAD_X * 2), HEIGHT - (PAD_Y * 2)
-    STRING_SPACING = DIAGRAM_WIDTH / (STRING_COUNT - 1)
-    FRET_SPACING = DIAGRAM_HEIGHT / FRET_COUNT
-    DOT_RADIUS = FRET_SPACING / 4.5
-    COLOR_FG, COLOR_ROOT, COLOR_BG = "#FFFFFF", "#007bff", "#1a1a1a"
-
-    pattern = scale_data.get('pattern', {}).get(box)
-    if not pattern:
-        abort(404, f"Box '{box}' not found for this scale.")
-
-    base_key = scale_data.get("base_key", "E")
-    fret_shift = NOTE_MAP.get(key, 0) - NOTE_MAP.get(base_key, 0)
+    STRING_SPACING = DIAGRAM_HEIGHT / (STRING_COUNT - 1)
+    FRET_SPACING = DIAGRAM_WIDTH / FRET_COUNT
+    DOT_RADIUS = STRING_SPACING / 3
     
-    notes = [(string, fret + fret_shift) for string, fret in pattern.get('frets', [])]
-    roots = [(string, fret + fret_shift) for string, fret in pattern.get('roots', [])]
-    
-    all_frets = [fret for string, fret in notes if fret > 0]
-    position = min(all_frets) if all_frets else 1
-    
-    if all_frets and max(all_frets) - position >= FRET_COUNT:
-         FRET_COUNT = max(all_frets) - position + 1
-         DIAGRAM_HEIGHT = FRET_SPACING * FRET_COUNT
-         HEIGHT = DIAGRAM_HEIGHT + (PAD_Y * 2)
+    # Standard tuning open string notes (EADGBe)
+    OPEN_STRING_NOTES = [4, 9, 2, 7, 11, 4] 
 
-    svg = [f'<svg width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" xmlns="http://www.w3.org/2000/svg">',
-           f'<rect width="100%" height="100%" fill="{COLOR_BG}"/>',
-           f'<g transform="translate({PAD_X}, {PAD_Y})" font-family="Arial" fill="{COLOR_FG}">']
-    
-    if position > 1:
-        svg.append(f'<text x="-{PAD_X/2.5}" y="{FRET_SPACING*0.8}" font-size="{FRET_SPACING*0.8}" text-anchor="middle">{position}</text>')
+    root_note = NOTE_MAP.get(key, 0)
+    scale_intervals = scale_data.get('intervals', [])
+    scale_notes = [(root_note + i) % 12 for i in scale_intervals]
 
+    svg = [f'<svg width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" xmlns="http://www.w3.org/2000/svg" class="scale-svg">',
+           f'<rect width="100%" height="100%" fill="var(--bg-color)"/>',
+           f'<g transform="translate({PAD_X}, {PAD_Y})" font-family="VT323, monospace">']
+
+    # Fret markers (3, 5, 7, 9, 12)
+    for fret_num in [3, 5, 7, 9, 12]:
+        x = (fret_num * FRET_SPACING) - (FRET_SPACING / 2)
+        svg.append(f'<circle cx="{x}" cy="{DIAGRAM_HEIGHT / 2}" r="{DOT_RADIUS / 2}" fill="rgba(255, 255, 255, 0.1)"/>')
+        if fret_num == 12:
+            svg.append(f'<circle cx="{x}" cy="{DIAGRAM_HEIGHT / 2 - STRING_SPACING * 2}" r="{DOT_RADIUS / 2}" fill="rgba(255, 255, 255, 0.1)"/>')
+            svg.append(f'<circle cx="{x}" cy="{DIAGRAM_HEIGHT / 2 + STRING_SPACING * 2}" r="{DOT_RADIUS / 2}" fill="rgba(255, 255, 255, 0.1)"/>')
+    
+    # Fret lines and strings
     for i in range(FRET_COUNT + 1):
-        y = i * FRET_SPACING
-        svg.append(f'<line x1="0" y1="{y}" x2="{DIAGRAM_WIDTH}" y2="{y}" stroke="{COLOR_FG}" stroke-width="2" />')
-
+        x = i * FRET_SPACING
+        stroke_width = 8 if i == 0 else 2
+        svg.append(f'<line x1="{x}" y1="0" x2="{x}" y2="{DIAGRAM_HEIGHT}" stroke="rgba(255, 255, 255, 0.3)" stroke-width="{stroke_width}" />')
     for i in range(STRING_COUNT):
-        x = i * STRING_SPACING
-        svg.append(f'<line x1="{x}" y1="0" x2="{x}" y2="{DIAGRAM_HEIGHT}" stroke="{COLOR_FG}" stroke-width="1" />')
+        y = i * STRING_SPACING
+        svg.append(f'<line x1="0" y1="{y}" x2="{DIAGRAM_WIDTH}" y2="{y}" stroke="rgba(255, 255, 255, 0.5)" stroke-width="{i/2 + 1}" />')
 
-    for string, fret in notes:
-        if fret == 0 or (fret >= position and fret < position + FRET_COUNT + 1):
-            string_x = (STRING_COUNT - string) * STRING_SPACING
-            fret_index = fret - position + 1 if fret >= position else 0
-            dot_y = (fret_index * FRET_SPACING) - (FRET_SPACING / 2) if fret > 0 else -FRET_SPACING/2
-            is_root = (string, fret) in roots
-            fill_color = COLOR_ROOT if is_root else COLOR_FG
-            svg.append(f'<circle cx="{string_x}" cy="{dot_y}" r="{DOT_RADIUS}" fill="{fill_color}" />')
+    # Draw scale notes
+    for string_idx, open_note in enumerate(OPEN_STRING_NOTES):
+        for fret_idx in range(FRET_COUNT + 1):
+            current_note = (open_note + fret_idx) % 12
+            if current_note in scale_notes:
+                cx = (fret_idx * FRET_SPACING) - (FRET_SPACING / 2) if fret_idx > 0 else -PAD_X/2
+                cy = string_idx * STRING_SPACING
+                
+                is_root = (current_note == root_note)
+                note_class = "root-note" if is_root else "scale-note"
+                
+                svg.append(f'<circle class="{note_class}" cx="{cx}" cy="{cy}" r="{DOT_RADIUS}" />')
 
     svg.extend(['</g>', '</svg>'])
     return "".join(svg)
@@ -257,14 +260,13 @@ def get_scales():
 @app.route('/api/scale-diagram', methods=['POST'])
 def scale_diagram():
     scale_name = request.form.get('scale')
-    key = request.form.get('key', 'E') 
-    box = request.form.get('box', 'box1')
+    key = request.form.get('key', 'E')
     
     if not scale_name: abort(400, "Scale name not provided.")
     scale_data = SCALE_DEFINITIONS.get(scale_name)
     if not scale_data: abort(404, f"Scale definition for '{scale_name}' not found.")
         
-    svg_string = generate_svg_scale_diagram(scale_data, key, box)
+    svg_string = generate_svg_scale_diagram(scale_data, key)
     return send_file(io.BytesIO(svg_string.encode('utf-8')), mimetype='image/svg+xml')
 
 if __name__ == "__main__":
