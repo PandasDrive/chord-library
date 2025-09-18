@@ -77,6 +77,14 @@
 
         @media (max-width: 900px) { .app-container { grid-template-columns: 1fr; } }
 
+        /* --- NEW: Media Query for Mobile Header --- */
+        @media (max-width: 600px) {
+          .app-header h1 {
+            font-size: 1.8em; /* Reduce font size on small screens */
+            text-shadow: 0 0 2px var(--primary-color); /* Make the glow much subtler */
+          }
+        }
+
         .main-content, .sidebar {
             background-color: var(--surface-color);
             border-radius: 8px;
@@ -185,7 +193,7 @@
         .modal-content {
             background-color: var(--surface-color);
             border: 1px solid var(--border-color);
-            margin: 10% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 850px; /* Wider modal */
+            margin: 10% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 850px;
             text-align: center; position: relative; animation: slideIn 0.3s;
             box-shadow: 0 0 30px var(--glow-color);
         }
@@ -203,10 +211,37 @@
         }
         .close-button:hover, .close-button:focus { color: white; }
         #modal-chord-diagram { margin-top: 15px; display: flex; justify-content: center; }
+        
+        .info-button {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--subtle-text);
+            transition: color 0.2s;
+        }
+        .info-button:hover {
+            color: var(--primary-color);
+        }
+        .info-panel {
+            display: none;
+            text-align: left;
+            font-size: 1.1em;
+            background-color: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 15px;
+        }
+        .info-panel p { margin-top: 0; }
+        .info-panel ul { padding-left: 20px; }
+        .info-panel .root-note-highlight { color: var(--success-color); font-weight: bold; }
+        .info-panel .scale-note-highlight { color: var(--primary-color); font-weight: bold; }
+        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* --- SVG Diagram Animations --- */
         @keyframes draw-in {
           from { stroke-dasharray: 500; stroke-dashoffset: 500; }
           to { stroke-dasharray: 500; stroke-dashoffset: 0; }
@@ -233,7 +268,6 @@
             transition: all 0.2s ease;
         }
 
-        /* --- Scale Heatmap Styles --- */
         .scale-svg .scale-note {
             fill: var(--primary-color);
             filter: drop-shadow(0 0 4px var(--primary-color));
@@ -241,7 +275,7 @@
             animation: fadeIn 0.5s ease-out;
         }
         .scale-svg .root-note {
-            fill: var(--success-color); /* Bright green for root notes */
+            fill: var(--success-color);
             filter: drop-shadow(0 0 8px var(--success-color));
             opacity: 1;
             animation: fadeIn 0.5s ease-out;
@@ -293,11 +327,20 @@
     <div id="chord-modal" class="modal">
         <div class="modal-content">
             <span id="close-modal-btn" class="close-button">&times;</span>
+            <span id="info-btn" class="info-button" style="display: none;">&#9432;</span>
             <h2 id="modal-chord-title"></h2>
             <div class="modal-controls">
                  <select id="modal-key-selector" class="modal-key-selector" style="display: none;"></select>
             </div>
             <div id="modal-chord-diagram"></div>
+            <div id="info-panel" class="info-panel" style="display: none;">
+                <p>This is a <strong>Fretboard Heatmap</strong>. It shows every note of the selected scale across the entire neck.</p>
+                <ul>
+                    <li><span class="root-note-highlight">Root Notes (Green):</span> This is your "home base". Start and end your melodies here for a sense of resolution.</li>
+                    <li><span class="scale-note-highlight">Scale Notes (Cyan):</span> These are all the other "safe" notes in the key.</li>
+                </ul>
+                <p><strong>How to Practice:</strong> Try playing horizontally along a single string to learn the scale's sound, or use it as a complete map for improvisation with a backing track.</p>
+            </div>
         </div>
     </div>
     
@@ -354,7 +397,8 @@
                   modalDiagram = document.getElementById('modal-chord-diagram'), 
                   addChordModal = document.getElementById('add-chord-modal'), closeAddModalBtn = document.getElementById('close-add-modal-btn'),
                   addChordForm = document.getElementById('add-chord-form'), addChordError = document.getElementById('add-chord-error'),
-                  scaleSelector = document.getElementById('scale-selector'), modalKeySelector = document.getElementById('modal-key-selector');
+                  scaleSelector = document.getElementById('scale-selector'), modalKeySelector = document.getElementById('modal-key-selector'),
+                  infoBtn = document.getElementById('info-btn'), infoPanel = document.getElementById('info-panel');
             
             const renderChordButtons = () => {
                 const selectedKey = keySelector.value;
@@ -417,9 +461,58 @@
             const removeChordFromProgression = (index) => { currentProgression.splice(index, 1); renderProgression(); };
             const saveCurrentProgression = () => { if (currentProgression.length > 0) { savedProgressions.push([...currentProgression]); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
             const handleSavedListClick = (e) => { const target = e.target.closest('button'); if (!target) return; const index = parseInt(target.dataset.index); if (target.dataset.action === 'load') { currentProgression = [...savedProgressions[index]]; renderProgression(); } else if (target.dataset.action === 'delete') { savedProgressions.splice(index, 1); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
-            const openChordModal = async (chordName) => { modalKeySelector.style.display = 'none'; modalTitle.textContent = allChordsData[chordName]?.title || chordName; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; try { const formData = new FormData(); formData.append('chord', chordName); const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
-            const openScaleModal = async (scaleName, key = 'E') => { const definition = allScalesData[scaleName]; modalTitle.textContent = definition ? `${key} ${definition.title}` : `${key} ${scaleName}`; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; modalKeySelector.style.display = 'inline-block'; modalKeySelector.innerHTML = ''; ALL_KEYS.forEach(k => { const option = document.createElement('option'); option.value = k; option.textContent = k; if (k === key) option.selected = true; modalKeySelector.appendChild(option); }); modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value); try { const formData = new FormData(); formData.append('scale', scaleName); formData.append('key', key); const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
-            const closeModal = () => { chordModal.style.display = 'none'; };
+            
+            const openChordModal = async (chordName) => { 
+                infoBtn.style.display = 'none'; 
+                infoPanel.style.display = 'none';
+                modalKeySelector.style.display = 'none'; 
+                modalTitle.textContent = allChordsData[chordName]?.title || chordName; 
+                modalDiagram.innerHTML = 'Loading...'; 
+                chordModal.style.display = 'block'; 
+                try { 
+                    const formData = new FormData(); 
+                    formData.append('chord', chordName); 
+                    const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData }); 
+                    if (!response.ok) throw new Error(await response.text()); 
+                    modalDiagram.innerHTML = await response.text(); 
+                } catch (error) { 
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; 
+                } 
+            };
+            
+            const openScaleModal = async (scaleName, key = 'E') => { 
+                infoBtn.style.display = 'block';
+                const definition = allScalesData[scaleName]; 
+                modalTitle.textContent = definition ? `${key} ${definition.title}` : `${key} ${scaleName}`; 
+                modalDiagram.innerHTML = 'Loading...'; 
+                chordModal.style.display = 'block'; 
+                modalKeySelector.style.display = 'inline-block'; 
+                modalKeySelector.innerHTML = ''; 
+                ALL_KEYS.forEach(k => { 
+                    const option = document.createElement('option'); 
+                    option.value = k; 
+                    option.textContent = k; 
+                    if (k === key) option.selected = true; 
+                    modalKeySelector.appendChild(option); 
+                }); 
+                modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value); 
+                try { 
+                    const formData = new FormData(); 
+                    formData.append('scale', scaleName); 
+                    formData.append('key', key); 
+                    const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData }); 
+                    if (!response.ok) throw new Error(await response.text()); 
+                    modalDiagram.innerHTML = await response.text(); 
+                } catch (error) { 
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; 
+                } 
+            };
+            
+            const closeModal = () => { 
+                chordModal.style.display = 'none'; 
+                infoPanel.style.display = 'none'; 
+            };
+            
             const initializeApp = async () => {
                 try {
                     const [chordsResponse, scalesResponse] = await Promise.all([fetch('/api/chords'), fetch('/api/scales')]);
@@ -448,6 +541,10 @@
             savedList.addEventListener('click', handleSavedListClick);
             closeModalBtn.addEventListener('click', closeModal);
             window.addEventListener('click', e => e.target == chordModal && closeModal());
+            
+            infoBtn.addEventListener('click', () => {
+                infoPanel.style.display = infoPanel.style.display === 'block' ? 'none' : 'block';
+            });
             
             const addChordModalEl = document.getElementById('add-chord-modal');
             addChordBtn.addEventListener('click', () => { addChordForm.reset(); addChordError.textContent = ''; document.getElementById('barre-details').style.display = 'none'; addChordModalEl.style.display = 'block'; });
