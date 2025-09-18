@@ -4,27 +4,86 @@ from flask import Flask, request, jsonify, send_file, abort, render_template
 
 app = Flask(__name__)
 
-# --- DATA DEFINITIONS ---
+# --- COMPREHENSIVE DATA DEFINITIONS ---
 
 CHORD_DEFINITIONS = {
-    'C':    { "frets": [-1, 3, 2, 0, 1, 0], "barres": [], "title": "C Major" },
-    'Cm':   { "frets": [-1, 3, 5, 5, 4, 3], "barres": [{"fromString": 5, "toString": 1, "fret": 3 }], "title": "C Minor" },
-    'C7':   { "frets": [-1, 3, 2, 3, 1, 0], "barres": [], "title": "C7" },
-    'Cmaj7':{ "frets": [-1, 3, 2, 0, 0, 0], "barres": [], "title": "C Major 7th" },
-    'G':    { "frets": [3, 2, 0, 0, 0, 3], "barres": [], "title": "G Major" },
-    'G7':   { "frets": [3, 2, 0, 0, 0, 1], "barres": [], "title": "G7" },
-    'Am':   { "frets": [-1, 0, 2, 2, 1, 0], "barres": [], "title": "A Minor" },
-    'A':    { "frets": [-1, 0, 2, 2, 2, 0], "barres": [], "title": "A Major" },
-    'A7':   { "frets": [-1, 0, 2, 0, 2, 0], "barres": [], "title": "A7" },
-    'E':    { "frets": [0, 2, 2, 1, 0, 0], "barres": [], "title": "E Major" },
-    'Em':   { "frets": [0, 2, 2, 0, 0, 0], "barres": [], "title": "E Minor" },
-    'E7':   { "frets": [0, 2, 0, 1, 0, 0], "barres": [], "title": "E7" },
-    'D':    { "frets": [-1, -1, 0, 2, 3, 2], "barres": [], "title": "D Major" },
-    'Dm':   { "frets": [-1, -1, 0, 2, 3, 1], "barres": [], "title": "D Minor" },
-    'D7':   { "frets": [-1, -1, 0, 2, 1, 2], "barres": [], "title": "D7" },
-    'F':    { "frets": [1, 3, 3, 2, 1, 1], "barres": [{"fromString": 6, "toString": 1, "fret": 1 }], "title": "F Major" },
-    'B7':   { "frets": [-1, 2, 1, 2, 0, 2], "barres": [], "title": "B7" },
+    # --- A Chords ---
+    'A':      { "frets": [-1, 0, 2, 2, 2, 0], "barres": [], "title": "A Major" },
+    'Am':     { "frets": [-1, 0, 2, 2, 1, 0], "barres": [], "title": "A Minor" },
+    'A7':     { "frets": [-1, 0, 2, 0, 2, 0], "barres": [], "title": "A Dominant 7th" },
+    'Amaj7':  { "frets": [-1, 0, 2, 1, 2, 0], "barres": [], "title": "A Major 7th" },
+    'Am7':    { "frets": [-1, 0, 2, 0, 1, 0], "barres": [], "title": "A Minor 7th" },
+    'Asus4':  { "frets": [-1, 0, 2, 2, 3, 0], "barres": [], "title": "A Suspended 4th" },
+    'Asus2':  { "frets": [-1, 0, 2, 2, 0, 0], "barres": [], "title": "A Suspended 2nd" },
+    'Aadd9':  { "frets": [-1, 0, 2, 2, 0, 0], "barres": [], "title": "A Add 9" },
+    'A6':     { "frets": [-1, 0, 2, 2, 2, 2], "barres": [], "title": "A Major 6th" },
+    'Adim':   { "frets": [-1, -1, 1, 2, 1, 2], "barres": [], "title": "A Diminished" },
+    'Aaug':   { "frets": [-1, 0, 3, 2, 2, 1], "barres": [], "title": "A Augmented" },
+
+    # --- B Chords ---
+    'B':      { "frets": [-1, 2, 4, 4, 4, 2], "barres": [{"fromString": 5, "toString": 1, "fret": 2 }], "title": "B Major" },
+    'Bm':     { "frets": [-1, 2, 4, 4, 3, 2], "barres": [{"fromString": 5, "toString": 1, "fret": 2 }], "title": "B Minor" },
+    'B7':     { "frets": [-1, 2, 1, 2, 0, 2], "barres": [], "title": "B Dominant 7th" },
+    'Bmaj7':  { "frets": [-1, 2, 4, 3, 4, 2], "barres": [{"fromString": 5, "toString": 1, "fret": 2 }], "title": "B Major 7th" },
+    'Bm7':    { "frets": [-1, 2, 0, 2, 0, 2], "barres": [], "title": "B Minor 7th" },
+    'Bsus4':  { "frets": [-1, 2, 4, 4, 5, 2], "barres": [{"fromString": 5, "toString": 1, "fret": 2 }], "title": "B Suspended 4th" },
+    'Bm7b5':  { "frets": [-1, 2, 3, 2, 3, -1], "barres": [], "title": "B Minor 7th flat 5 (Half-Diminished)" },
+
+    # --- C Chords ---
+    'C':      { "frets": [-1, 3, 2, 0, 1, 0], "barres": [], "title": "C Major" },
+    'Cm':     { "frets": [-1, 3, 5, 5, 4, 3], "barres": [{"fromString": 5, "toString": 1, "fret": 3 }], "title": "C Minor" },
+    'C7':     { "frets": [-1, 3, 2, 3, 1, 0], "barres": [], "title": "C Dominant 7th" },
+    'Cmaj7':  { "frets": [-1, 3, 2, 0, 0, 0], "barres": [], "title": "C Major 7th" },
+    'Cm7':    { "frets": [-1, 3, 5, 3, 4, 3], "barres": [{"fromString": 5, "toString": 1, "fret": 3 }], "title": "C Minor 7th" },
+    'Cadd9':  { "frets": [-1, 3, 2, 0, 3, 0], "barres": [], "title": "C Add 9" },
+    'Csus4':  { "frets": [-1, 3, 3, 0, 1, 1], "barres": [], "title": "C Suspended 4th" },
+    'Cdim':   { "frets": [-1, -1, 1, 2, 1, 2], "barres": [], "title": "C Diminished" },
+    'Caug':   { "frets": [-1, 3, 2, 1, 1, 0], "barres": [], "title": "C Augmented" },
+
+    # --- D Chords ---
+    'D':      { "frets": [-1, -1, 0, 2, 3, 2], "barres": [], "title": "D Major" },
+    'Dm':     { "frets": [-1, -1, 0, 2, 3, 1], "barres": [], "title": "D Minor" },
+    'D7':     { "frets": [-1, -1, 0, 2, 1, 2], "barres": [], "title": "D Dominant 7th" },
+    'Dmaj7':  { "frets": [-1, -1, 0, 2, 2, 2], "barres": [], "title": "D Major 7th" },
+    'Dm7':    { "frets": [-1, -1, 0, 2, 1, 1], "barres": [], "title": "D Minor 7th" },
+    'Dsus4':  { "frets": [-1, -1, 0, 2, 3, 3], "barres": [], "title": "D Suspended 4th" },
+    'Dsus2':  { "frets": [-1, -1, 0, 2, 3, 0], "barres": [], "title": "D Suspended 2nd" },
+    'Dadd9':  { "frets": [-1, -1, 0, 2, 3, 0], "barres": [], "title": "D Add 9" },
+    'D6':     { "frets": [-1, -1, 0, 2, 0, 2], "barres": [], "title": "D Major 6th" },
+    'Dm6':    { "frets": [-1, -1, 0, 2, 0, 1], "barres": [], "title": "D Minor 6th" },
+
+    # --- E Chords ---
+    'E':      { "frets": [0, 2, 2, 1, 0, 0], "barres": [], "title": "E Major" },
+    'Em':     { "frets": [0, 2, 2, 0, 0, 0], "barres": [], "title": "E Minor" },
+    'E7':     { "frets": [0, 2, 0, 1, 0, 0], "barres": [], "title": "E Dominant 7th" },
+    'Emaj7':  { "frets": [0, 2, 1, 1, 0, 0], "barres": [], "title": "E Major 7th" },
+    'Em7':    { "frets": [0, 2, 2, 0, 3, 0], "barres": [], "title": "E Minor 7th" },
+    'Esus4':  { "frets": [0, 2, 2, 2, 0, 0], "barres": [], "title": "E Suspended 4th" },
+    'Eadd9':  { "frets": [0, 2, 2, 1, 0, 2], "barres": [], "title": "E Add 9" },
+    'E6':     { "frets": [0, 2, 2, 1, 2, 0], "barres": [], "title": "E Major 6th" },
+    'Em6':    { "frets": [0, 2, 2, 0, 2, 0], "barres": [], "title": "E Minor 6th" },
+
+    # --- F Chords ---
+    'F':      { "frets": [1, 3, 3, 2, 1, 1], "barres": [{"fromString": 6, "toString": 1, "fret": 1 }], "title": "F Major" },
+    'Fm':     { "frets": [1, 3, 3, 1, 1, 1], "barres": [{"fromString": 6, "toString": 1, "fret": 1 }], "title": "F Minor" },
+    'F7':     { "frets": [1, 3, 1, 2, 1, 1], "barres": [{"fromString": 6, "toString": 1, "fret": 1 }], "title": "F Dominant 7th" },
+    'Fmaj7':  { "frets": [1, 0, 2, 2, 1, 0], "barres": [], "title": "F Major 7th (C-shape)" },
+    'Fm7':    { "frets": [1, 3, 1, 1, 1, 1], "barres": [{"fromString": 6, "toString": 1, "fret": 1 }], "title": "F Minor 7th" },
+    'Fadd9':  { "frets": [-1, 3, 3, 2, 1, 3], "barres": [], "title": "F Add 9" },
+    
+    # --- G Chords ---
+    'G':      { "frets": [3, 2, 0, 0, 0, 3], "barres": [], "title": "G Major" },
+    'Gm':     { "frets": [3, 5, 5, 3, 3, 3], "barres": [{"fromString": 6, "toString": 1, "fret": 3 }], "title": "G Minor" },
+    'G7':     { "frets": [3, 2, 0, 0, 0, 1], "barres": [], "title": "G Dominant 7th" },
+    'Gmaj7':  { "frets": [3, 2, 0, 0, 0, 2], "barres": [], "title": "G Major 7th" },
+    'Gm7':    { "frets": [3, 5, 3, 3, 3, 3], "barres": [{"fromString": 6, "toString": 1, "fret": 3 }], "title": "G Minor 7th" },
+    'Gsus4':  { "frets": [3, 3, 0, 0, 1, 3], "barres": [], "title": "G Suspended 4th" },
+    'Gadd9':  { "frets": [3, 2, 0, 2, 0, 3], "barres": [], "title": "G Add 9" },
+    'G6':     { "frets": [3, 2, 0, 0, 0, 0], "barres": [], "title": "G Major 6th" },
+    'Gdim':   { "frets": [-1, -1, -1, 3, 2, 3], "barres": [], "title": "G Diminished" },
+    'Gaug':   { "frets": [3, 2, 1, 0, 0, 3], "barres": [], "title": "G Augmented" },
 }
+
 
 SCALE_DEFINITIONS = {
     "minor_pentatonic": {
