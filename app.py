@@ -1,5 +1,6 @@
 import os
 import io
+import random # NEW: Added for the AI generator
 from flask import Flask, request, jsonify, send_file, abort, render_template
 
 app = Flask(__name__)
@@ -84,12 +85,11 @@ CHORD_DEFINITIONS = {
     'Gaug':   { "frets": [3, 2, 1, 0, 0, 3], "barres": [], "title": "G Augmented" },
 }
 
-
 SCALE_DEFINITIONS = {
     "major_scale": {
         "title": "Major Scale (Ionian)",
         "description": "The foundation of Western music, with a happy sound.",
-        "intervals": [0, 2, 4, 5, 7, 9, 11] # In semitones from the root
+        "intervals": [0, 2, 4, 5, 7, 9, 11]
     },
     "minor_pentatonic": {
         "title": "Minor Pentatonic",
@@ -114,6 +114,55 @@ SCALE_DEFINITIONS = {
 }
 
 NOTE_MAP = {"E": 0, "F": 1, "F#": 2, "G": 3, "G#": 4, "A": 5, "A#": 6, "B": 7, "C": 8, "C#": 9, "D": 10, "D#": 11}
+
+# --- NEW: Markov Chain Chord Progression Generator ---
+def build_markov_chain(corpus):
+    chain = {}
+    for progression in corpus:
+        for i in range(len(progression) - 1):
+            current_chord = progression[i]
+            next_chord = progression[i+1]
+            if current_chord not in chain:
+                chain[current_chord] = []
+            chain[current_chord].append(next_chord)
+    return chain
+
+TRAINING_CORPUS = [
+    ['C', 'G', 'Am', 'F'],          # Classic pop/rock
+    ['G', 'D', 'Em', 'C'],          # Another classic
+    ['Am', 'F', 'C', 'G'],          # Minor key standard
+    ['D', 'A', 'Bm', 'G'],          # Common in rock ballads
+    ['E', 'A', 'E', 'B7'],          # Basic blues
+    ['C', 'Am', 'Dm', 'G7'],         # Doo-wop progression
+    ['F', 'C', 'G', 'C'],
+    ['Bm', 'G', 'D', 'A']
+]
+MARKOV_CHAIN = build_markov_chain(TRAINING_CORPUS)
+
+@app.route('/api/generate-progression', methods=['GET'])
+def generate_progression():
+    start_chord = request.args.get('start_chord', 'C')
+    length = int(request.args.get('length', 4))
+    
+    if start_chord not in MARKOV_CHAIN:
+        start_chord = random.choice(list(MARKOV_CHAIN.keys()))
+
+    progression = [start_chord]
+    current_chord = start_chord
+
+    for _ in range(length - 1):
+        if current_chord in MARKOV_CHAIN and MARKOV_CHAIN[current_chord]:
+            next_chord = random.choice(MARKOV_CHAIN[current_chord])
+            progression.append(next_chord)
+            current_chord = next_chord
+        else:
+            # If we hit a dead end, pick a random chord to continue
+            current_chord = random.choice(list(MARKOV_CHAIN.keys()))
+            progression.append(current_chord)
+            
+    return jsonify(progression)
+# --- END NEW SECTION ---
+
 
 def generate_svg_chord_diagram(chord_data):
     STRING_COUNT, FRET_COUNT = 6, 5
@@ -184,7 +233,6 @@ def generate_svg_scale_diagram(scale_data, key):
     FRET_SPACING = DIAGRAM_WIDTH / FRET_COUNT
     DOT_RADIUS = STRING_SPACING / 3
     
-    # Standard tuning open string notes (EADGBe)
     OPEN_STRING_NOTES = [4, 9, 2, 7, 11, 4] 
 
     root_note = NOTE_MAP.get(key, 0)
@@ -195,7 +243,6 @@ def generate_svg_scale_diagram(scale_data, key):
            f'<rect width="100%" height="100%" fill="var(--bg-color)"/>',
            f'<g transform="translate({PAD_X}, {PAD_Y})" font-family="VT323, monospace">']
 
-    # Fret markers (3, 5, 7, 9, 12)
     for fret_num in [3, 5, 7, 9, 12]:
         x = (fret_num * FRET_SPACING) - (FRET_SPACING / 2)
         svg.append(f'<circle cx="{x}" cy="{DIAGRAM_HEIGHT / 2}" r="{DOT_RADIUS / 2}" fill="rgba(255, 255, 255, 0.1)"/>')
@@ -203,7 +250,6 @@ def generate_svg_scale_diagram(scale_data, key):
             svg.append(f'<circle cx="{x}" cy="{DIAGRAM_HEIGHT / 2 - STRING_SPACING * 2}" r="{DOT_RADIUS / 2}" fill="rgba(255, 255, 255, 0.1)"/>')
             svg.append(f'<circle cx="{x}" cy="{DIAGRAM_HEIGHT / 2 + STRING_SPACING * 2}" r="{DOT_RADIUS / 2}" fill="rgba(255, 255, 255, 0.1)"/>')
     
-    # Fret lines and strings
     for i in range(FRET_COUNT + 1):
         x = i * FRET_SPACING
         stroke_width = 8 if i == 0 else 2
@@ -212,7 +258,6 @@ def generate_svg_scale_diagram(scale_data, key):
         y = i * STRING_SPACING
         svg.append(f'<line x1="0" y1="{y}" x2="{DIAGRAM_WIDTH}" y2="{y}" stroke="rgba(255, 255, 255, 0.5)" stroke-width="{i/2 + 1}" />')
 
-    # Draw scale notes
     for string_idx, open_note in enumerate(OPEN_STRING_NOTES):
         for fret_idx in range(FRET_COUNT + 1):
             current_note = (open_note + fret_idx) % 12
