@@ -661,6 +661,7 @@
 
                 const absoluteFrets = relativeFrets.map(fret => {
                     if (fret <= 0) return fret;
+                    if (position <= 1) return fret;
                     return position + fret - 1;
                 });
 
