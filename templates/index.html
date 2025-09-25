@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chord Architect</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600&family=VT323&display=swap" rel="stylesheet">
-    
+
     <style>
         /* CSS remains the same as the last version.... */
         :root {
@@ -34,7 +34,7 @@
             padding: 20px;
             backdrop-filter: blur(2px);
         }
-        
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         body {
             animation: fadeIn 1.5s ease-in-out;
@@ -51,7 +51,7 @@
             justify-content: space-between;
             align-items: center;
         }
-        
+
         .app-header h1 {
             font-size: 2.5em;
             margin: 0;
@@ -60,7 +60,7 @@
             color: var(--primary-color);
             text-shadow: 0 0 5px var(--primary-color);
         }
-        
+
         .app-header .author {
             font-size: 0.9em;
             color: var(--subtle-text);
@@ -110,7 +110,7 @@
             align-items: center;
             border: 1px solid var(--border-color);
         }
-        
+
         .progression-diagrams {
             display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start;
             align-items: center; min-height: 120px; margin-bottom: 20px; padding: 10px;
@@ -120,7 +120,7 @@
             width: 100px; height: 120px; background-color: var(--surface-color);
             border-radius: 6px; border: 1px solid var(--border-color);
         }
-        
+
         .progression-placeholder { color: var(--subtle-text); font-style: italic; }
 
         .chord-pill {
@@ -142,9 +142,9 @@
         .controls-container {
             margin-bottom: 20px;
         }
-        .controls { 
-            display: flex; 
-            gap: 10px; 
+        .controls {
+            display: flex;
+            gap: 10px;
         }
         .controls-info {
             color: var(--subtle-text);
@@ -153,7 +153,7 @@
             font-style: italic;
         }
 
-        .btn { 
+        .btn {
             padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1.2em; cursor: pointer;
             transition: all 0.2s; font-family: 'VT323', monospace;
             display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -175,12 +175,39 @@
         .key-selector-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
         #key-selector, .modal-key-selector { padding: 8px; border-radius: 5px; background-color: var(--bg-color); color: white; border: 1px solid var(--border-color); font-family: 'VT323', monospace; font-size: 1.2em;}
 
-        .chord-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
+        .chord-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+        .chord-btn-container { position: relative; }
         .chord-btn {
             background-color: transparent; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px;
             cursor: pointer; transition: all 0.2s; font-weight: 500; border: 1px solid var(--border-color); font-size: 1.2em;
+            width: 100%; /* Make button take full width of container */
         }
         .chord-btn:hover { background-color: var(--primary-color); color: black; transform: translateY(-2px); }
+        .delete-chord-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background-color: var(--danger-color);
+            color: white;
+            border: 1px solid white;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            line-height: 1;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.2s ease-in-out;
+        }
+        .chord-btn-container:hover .delete-chord-btn {
+            opacity: 1;
+            transform: scale(1);
+        }
+
 
         .saved-progressions-list { list-style: none; padding: 0; margin: 0; }
         .saved-item { background-color: #282828; padding: 10px 15px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -195,7 +222,7 @@
             border: 1px solid var(--border-color); font-family: 'VT323', monospace; font-size: 1.2em;
         }
         .scale-btn:hover { background-color: var(--primary-color); color: black; transform: translateY(-2px); }
-        
+
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
             overflow: auto; background-color: rgba(0, 0, 0, 0.6); animation: fadeIn 0.3s;
@@ -222,7 +249,7 @@
         }
         .close-button:hover, .close-button:focus { color: white; }
         #modal-chord-diagram { margin-top: 15px; display: flex; justify-content: center; }
-        
+
         .info-button {
             position: absolute;
             top: 15px;
@@ -249,7 +276,7 @@
         .info-panel ul { padding-left: 20px; }
         .info-panel .root-note-highlight { color: var(--success-color); font-weight: bold; }
         .info-panel .scale-note-highlight { color: var(--primary-color); font-weight: bold; }
-        
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
@@ -343,7 +370,7 @@
             <div id="scale-selector" class="scale-selector"></div>
         </aside>
     </div>
-    
+
     <div id="chord-modal" class="modal">
         <div class="modal-content">
             <span id="close-modal-btn" class="close-button">&times;</span>
@@ -363,7 +390,7 @@
             </div>
         </div>
     </div>
-    
+
     <div id="add-chord-modal" class="modal">
         <div class="modal-content">
             <span id="close-add-modal-btn" class="close-button">&times;</span>
@@ -411,20 +438,21 @@
             const DIATONIC_CHORDS = { 'C': ['C', 'Dm', 'Em', 'F', 'G', 'Am'], 'G': ['G', 'Am', 'Bm', 'C', 'D', 'Em'], 'D': ['D', 'Em', 'F#m', 'G', 'A', 'Bm'], 'A': ['A', 'Bm', 'C#m', 'D', 'E', 'F#m'], 'E': ['E', 'F#m', 'G#m', 'A', 'B', 'C#m'], 'B': ['B', 'C#m', 'D#m', 'E', 'F#', 'G#m'], 'F#': ['F#', 'G#m', 'A#m', 'B', 'C#', 'D#m'], 'C#': ['C#', 'D#m', 'E#m', 'F#', 'G#', 'A#m'], 'F': ['F', 'Gm', 'Am', 'Bb', 'C', 'Dm'], 'Bb': ['Bb', 'Cm', 'Dm', 'Eb', 'F', 'Gm'], 'Eb': ['Eb', 'Fm', 'Gm', 'Ab', 'Bb', 'Cm'], 'Ab': ['Ab', 'Bbm', 'Cm', 'Db', 'Eb', 'Fm'] };
             const ALL_KEYS = ["E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#"];
             let currentProgression = [], savedProgressions = JSON.parse(localStorage.getItem('savedProgressions')) || [], allChordsData = {}, allScalesData = {};
-            
+
             const chordSelector = document.getElementById('chord-selector'), progressionDisplay = document.getElementById('progression-display'),
-                  progressionDiagrams = document.getElementById('progression-diagrams'), 
+                  progressionDiagrams = document.getElementById('progression-diagrams'),
                   generateBtn = document.getElementById('generate-btn'),
                   saveBtn = document.getElementById('save-btn'), clearBtn = document.getElementById('clear-btn'),
                   savedList = document.getElementById('saved-progressions-list'), keySelector = document.getElementById('key-selector'),
                   addChordBtn = document.getElementById('add-chord-btn'), chordModal = document.getElementById('chord-modal'),
                   closeModalBtn = document.getElementById('close-modal-btn'), modalTitle = document.getElementById('modal-chord-title'),
-                  modalDiagram = document.getElementById('modal-chord-diagram'), 
+                  modalDiagram = document.getElementById('modal-chord-diagram'),
                   addChordModal = document.getElementById('add-chord-modal'), closeAddModalBtn = document.getElementById('close-add-modal-btn'),
                   addChordForm = document.getElementById('add-chord-form'), addChordError = document.getElementById('add-chord-error'),
                   scaleSelector = document.getElementById('scale-selector'), modalKeySelector = document.getElementById('modal-key-selector'),
                   infoBtn = document.getElementById('info-btn'), infoPanel = document.getElementById('info-panel');
-            
+
+            // --- MODIFIED: Add delete button for custom chords ---
             const renderChordButtons = () => {
                 const selectedKey = keySelector.value;
                 const chordsToShow = selectedKey === 'all' ? Object.keys(allChordsData).sort() : DIATONIC_CHORDS[selectedKey];
@@ -432,17 +460,31 @@
                 chordSelector.innerHTML = '';
                 if (chordsToShow) {
                     chordsToShow.forEach(name => {
-                        if (allChordsData[name]) {
+                        const chordData = allChordsData[name];
+                        if (chordData) {
+                            const container = document.createElement('div');
+                            container.className = 'chord-btn-container';
+
                             const btn = document.createElement('button');
                             btn.className = 'chord-btn';
                             btn.textContent = name;
                             btn.dataset.chord = name;
-                            chordSelector.appendChild(btn);
+                            container.appendChild(btn);
+
+                            // If the chord is custom, add a delete button
+                            if (chordData.custom) {
+                                const deleteBtn = document.createElement('button');
+                                deleteBtn.className = 'delete-chord-btn';
+                                deleteBtn.innerHTML = '&times;';
+                                deleteBtn.dataset.chordName = name;
+                                container.appendChild(deleteBtn);
+                            }
+                            chordSelector.appendChild(container);
                         }
                     });
                 }
             };
-            
+
             const renderKeySelector = () => {
                 keySelector.innerHTML = '';
                 const allOption = document.createElement('option');
@@ -486,58 +528,58 @@
             const removeChordFromProgression = (index) => { currentProgression.splice(index, 1); renderProgression(); };
             const saveCurrentProgression = () => { if (currentProgression.length > 0) { savedProgressions.push([...currentProgression]); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
             const handleSavedListClick = (e) => { const target = e.target.closest('button'); if (!target) return; const index = parseInt(target.dataset.index); if (target.dataset.action === 'load') { currentProgression = [...savedProgressions[index]]; renderProgression(); } else if (target.dataset.action === 'delete') { savedProgressions.splice(index, 1); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
-            
-            const openChordModal = async (chordName) => { 
-                infoBtn.style.display = 'none'; 
+
+            const openChordModal = async (chordName) => {
+                infoBtn.style.display = 'none';
                 infoPanel.style.display = 'none';
-                modalKeySelector.style.display = 'none'; 
-                modalTitle.textContent = allChordsData[chordName]?.title || chordName; 
-                modalDiagram.innerHTML = 'Loading...'; 
-                chordModal.style.display = 'block'; 
-                try { 
-                    const formData = new FormData(); 
-                    formData.append('chord', chordName); 
-                    const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData }); 
-                    if (!response.ok) throw new Error(await response.text()); 
-                    modalDiagram.innerHTML = await response.text(); 
-                } catch (error) { 
-                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; 
-                } 
+                modalKeySelector.style.display = 'none';
+                modalTitle.textContent = allChordsData[chordName]?.title || chordName;
+                modalDiagram.innerHTML = 'Loading...';
+                chordModal.style.display = 'block';
+                try {
+                    const formData = new FormData();
+                    formData.append('chord', chordName);
+                    const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData });
+                    if (!response.ok) throw new Error(await response.text());
+                    modalDiagram.innerHTML = await response.text();
+                } catch (error) {
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`;
+                }
             };
-            
-            const openScaleModal = async (scaleName, key = 'E') => { 
+
+            const openScaleModal = async (scaleName, key = 'E') => {
                 infoBtn.style.display = 'block';
-                const definition = allScalesData[scaleName]; 
-                modalTitle.textContent = definition ? `${key} ${definition.title}` : `${key} ${scaleName}`; 
-                modalDiagram.innerHTML = 'Loading...'; 
-                chordModal.style.display = 'block'; 
-                modalKeySelector.style.display = 'inline-block'; 
-                modalKeySelector.innerHTML = ''; 
-                ALL_KEYS.forEach(k => { 
-                    const option = document.createElement('option'); 
-                    option.value = k; 
-                    option.textContent = k; 
-                    if (k === key) option.selected = true; 
-                    modalKeySelector.appendChild(option); 
-                }); 
-                modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value); 
-                try { 
-                    const formData = new FormData(); 
-                    formData.append('scale', scaleName); 
-                    formData.append('key', key); 
-                    const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData }); 
-                    if (!response.ok) throw new Error(await response.text()); 
-                    modalDiagram.innerHTML = await response.text(); 
-                } catch (error) { 
-                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; 
-                } 
+                const definition = allScalesData[scaleName];
+                modalTitle.textContent = definition ? `${key} ${definition.title}` : `${key} ${scaleName}`;
+                modalDiagram.innerHTML = 'Loading...';
+                chordModal.style.display = 'block';
+                modalKeySelector.style.display = 'inline-block';
+                modalKeySelector.innerHTML = '';
+                ALL_KEYS.forEach(k => {
+                    const option = document.createElement('option');
+                    option.value = k;
+                    option.textContent = k;
+                    if (k === key) option.selected = true;
+                    modalKeySelector.appendChild(option);
+                });
+                modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value);
+                try {
+                    const formData = new FormData();
+                    formData.append('scale', scaleName);
+                    formData.append('key', key);
+                    const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData });
+                    if (!response.ok) throw new Error(await response.text());
+                    modalDiagram.innerHTML = await response.text();
+                } catch (error) {
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`;
+                }
             };
-            
-            const closeModal = () => { 
-                chordModal.style.display = 'none'; 
-                infoPanel.style.display = 'none'; 
+
+            const closeModal = () => {
+                chordModal.style.display = 'none';
+                infoPanel.style.display = 'none';
             };
-            
+
             const initializeApp = async () => {
                 try {
                     const [chordsResponse, scalesResponse] = await Promise.all([fetch('/api/chords'), fetch('/api/scales')]);
@@ -564,9 +606,33 @@
                 renderProgression();
             };
             
+            // --- NEW: Function to handle deleting a custom chord ---
+            const handleDeleteChord = async (chordName) => {
+                if (confirm(`Are you sure you want to delete the chord "${chordName}"?`)) {
+                    try {
+                        const response = await fetch(`/api/chords/${chordName}`, {
+                            method: 'DELETE'
+                        });
+                        if (!response.ok) throw new Error(await response.text());
+                        // Refresh the app to reflect the deletion
+                        await initializeApp();
+                    } catch (error) {
+                        alert(`Error deleting chord: ${error.message}`);
+                    }
+                }
+            };
+
             keySelector.addEventListener('change', renderChordButtons);
-            
-            chordSelector.addEventListener('click', e => e.target.classList.contains('chord-btn') && addChordToProgression(e.target.dataset.chord));
+
+            // --- MODIFIED: Event listener for chord selector to handle both adding and deleting chords ---
+            chordSelector.addEventListener('click', e => {
+                if (e.target.classList.contains('chord-btn')) {
+                    addChordToProgression(e.target.dataset.chord);
+                } else if (e.target.classList.contains('delete-chord-btn')) {
+                    handleDeleteChord(e.target.dataset.chordName);
+                }
+            });
+
             scaleSelector.addEventListener('click', e => e.target.classList.contains('scale-btn') && openScaleModal(e.target.dataset.scale));
             progressionDisplay.addEventListener('click', e => { const pill = e.target.closest('.chord-pill'); if (e.target.classList.contains('remove-chord')) removeChordFromProgression(parseInt(e.target.dataset.index)); else if (pill) openChordModal(pill.dataset.chordName); });
             generateBtn.addEventListener('click', handleGenerateClick);
@@ -575,30 +641,29 @@
             savedList.addEventListener('click', handleSavedListClick);
             closeModalBtn.addEventListener('click', closeModal);
             window.addEventListener('click', e => e.target == chordModal && closeModal());
-            
+
             infoBtn.addEventListener('click', () => {
                 infoPanel.style.display = infoPanel.style.display === 'block' ? 'none' : 'block';
             });
-            
+
             const addChordModalEl = document.getElementById('add-chord-modal');
             addChordBtn.addEventListener('click', () => { addChordForm.reset(); addChordError.textContent = ''; document.getElementById('barre-details').style.display = 'none'; addChordModalEl.style.display = 'block'; });
             document.getElementById('close-add-modal-btn').addEventListener('click', () => addChordModalEl.style.display = 'none');
             document.getElementById('has-barre').addEventListener('change', e => { document.getElementById('barre-details').style.display = e.target.checked ? 'block' : 'none'; });
 
-            // --- MODIFIED: Form submission logic now calculates absolute frets ---
             addChordForm.addEventListener('submit', async e => {
                 e.preventDefault();
                 addChordError.textContent = '';
 
                 const position = parseInt(document.getElementById('starting-fret').value, 10) || 0;
-                
+
                 const relativeFrets = Array.from(document.querySelectorAll('.fret-input')).map(input => parseInt(input.value, 10));
-                
+
                 const absoluteFrets = relativeFrets.map(fret => {
-                    if (fret <= 0) return fret; // Keep muted (-1) and open (0) strings as they are
-                    return position + fret - 1; // E.g., position 5, relative fret 1 becomes absolute fret 5
+                    if (fret <= 0) return fret;
+                    return position + fret - 1;
                 });
-                
+
                 const barres = [];
                 if (document.getElementById('has-barre').checked) {
                     const relativeBarreFret = parseInt(document.getElementById('barre-fret').value, 10);

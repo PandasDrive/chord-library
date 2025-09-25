@@ -71,7 +71,7 @@ CHORD_DEFINITIONS = {
     'Fmaj7':  { "frets": [1, 0, 2, 2, 1, 0], "barres": [], "title": "F Major 7th (C-shape)" },
     'Fm7':    { "frets": [1, 3, 1, 1, 1, 1], "barres": [{"fromString": 6, "toString": 1, "fret": 1 }], "title": "F Minor 7th" },
     'Fadd9':  { "frets": [-1, 3, 3, 2, 1, 3], "barres": [], "title": "F Add 9" },
-    
+
     # --- G Chords ---
     'G':      { "frets": [3, 2, 0, 0, 0, 3], "barres": [], "title": "G Major" },
     'Gm':     { "frets": [3, 5, 5, 3, 3, 3], "barres": [{"fromString": 6, "toString": 1, "fret": 3 }], "title": "G Minor" },
@@ -143,7 +143,7 @@ MARKOV_CHAIN = build_markov_chain(TRAINING_CORPUS)
 def generate_progression():
     start_chord = request.args.get('start_chord', 'C')
     length = int(request.args.get('length', 4))
-    
+
     if start_chord not in MARKOV_CHAIN:
         start_chord = random.choice(list(MARKOV_CHAIN.keys()))
 
@@ -158,7 +158,7 @@ def generate_progression():
         else:
             current_chord = random.choice(list(MARKOV_CHAIN.keys()))
             progression.append(current_chord)
-            
+
     return jsonify(progression)
 
 def generate_svg_chord_diagram(chord_data):
@@ -229,8 +229,8 @@ def generate_svg_scale_diagram(scale_data, key):
     STRING_SPACING = DIAGRAM_HEIGHT / (STRING_COUNT - 1)
     FRET_SPACING = DIAGRAM_WIDTH / FRET_COUNT
     DOT_RADIUS = STRING_SPACING / 3
-    
-    OPEN_STRING_NOTES = [4, 9, 2, 7, 11, 4] 
+
+    OPEN_STRING_NOTES = [4, 9, 2, 7, 11, 4]
 
     root_note = NOTE_MAP.get(key, 0)
     scale_intervals = scale_data.get('intervals', [])
@@ -246,7 +246,7 @@ def generate_svg_scale_diagram(scale_data, key):
         if fret_num == 12:
             svg.append(f'<circle cx="{x}" cy="{DIAGRAM_HEIGHT / 2 - STRING_SPACING * 2}" r="{DOT_RADIUS / 2}" fill="rgba(255, 255, 255, 0.1)"/>')
             svg.append(f'<circle cx="{x}" cy="{DIAGRAM_HEIGHT / 2 + STRING_SPACING * 2}" r="{DOT_RADIUS / 2}" fill="rgba(255, 255, 255, 0.1)"/>')
-    
+
     for i in range(FRET_COUNT + 1):
         x = i * FRET_SPACING
         stroke_width = 8 if i == 0 else 2
@@ -261,10 +261,10 @@ def generate_svg_scale_diagram(scale_data, key):
             if current_note in scale_notes:
                 cx = (fret_idx * FRET_SPACING) - (FRET_SPACING / 2) if fret_idx > 0 else -PAD_X/2
                 cy = string_idx * STRING_SPACING
-                
+
                 is_root = (current_note == root_note)
                 note_class = "root-note" if is_root else "scale-note"
-                
+
                 svg.append(f'<circle class="{note_class}" cx="{cx}" cy="{cy}" r="{DOT_RADIUS}" />')
 
     svg.extend(['</g>', '</svg>'])
@@ -283,8 +283,23 @@ def handle_chords():
         name = new_chord.get('name')
         if not name or name in CHORD_DEFINITIONS:
             abort(400, "Invalid or duplicate chord name.")
+        # MODIFIED: Add a 'custom' flag to user-added chords
+        new_chord['custom'] = True
         CHORD_DEFINITIONS[name] = new_chord
         return jsonify({"message": f"Chord '{name}' added."}), 201
+
+# --- NEW: Added a new route to handle deleting a specific chord ---
+@app.route('/api/chords/<string:chord_name>', methods=['DELETE'])
+def delete_chord(chord_name):
+    if chord_name in CHORD_DEFINITIONS:
+        # We only allow deleting chords that are marked as 'custom'
+        if CHORD_DEFINITIONS[chord_name].get('custom'):
+            del CHORD_DEFINITIONS[chord_name]
+            return jsonify({"message": f"Chord '{chord_name}' deleted."}), 200
+        else:
+            abort(403, "Cannot delete a built-in chord.")
+    else:
+        abort(404, "Chord not found.")
 
 @app.route('/api/chord-diagram', methods=['POST'])
 def chord_diagram():
@@ -303,11 +318,11 @@ def get_scales():
 def scale_diagram():
     scale_name = request.form.get('scale')
     key = request.form.get('key', 'E')
-    
+
     if not scale_name: abort(400, "Scale name not provided.")
     scale_data = SCALE_DEFINITIONS.get(scale_name)
     if not scale_data: abort(404, f"Scale definition for '{scale_name}' not found.")
-        
+
     svg_string = generate_svg_scale_diagram(scale_data, key)
     return send_file(io.BytesIO(svg_string.encode('utf-8')), mimetype='image/svg+xml')
 
