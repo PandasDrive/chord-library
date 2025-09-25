@@ -156,13 +156,10 @@ def generate_progression():
             progression.append(next_chord)
             current_chord = next_chord
         else:
-            # If we hit a dead end, pick a random chord to continue
             current_chord = random.choice(list(MARKOV_CHAIN.keys()))
             progression.append(current_chord)
             
     return jsonify(progression)
-# --- END NEW SECTION ---
-
 
 def generate_svg_chord_diagram(chord_data):
     STRING_COUNT, FRET_COUNT = 6, 5

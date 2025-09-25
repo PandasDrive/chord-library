@@ -7,32 +7,39 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600&family=VT323&display=swap" rel="stylesheet">
     
     <style>
+        /* CSS remains the same as the last version... */
         :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --primary-color: #2a9d8f;
-            --primary-hover: #264653;
-            --text-color: #e0e0e0;
-            --subtle-text: #888;
-            --border-color: #333;
-            --success-color: #2a9d8f;
-            --danger-color: #e76f51;
-            --glow-color: rgba(42, 157, 143, 0.1);
+            --bg-color: #0d0221;
+            --surface-color: rgba(26, 20, 53, 0.8);
+            --primary-color: #00f0ff;
+            --primary-hover: #9dffff;
+            --text-color: #f0f0f0;
+            --subtle-text: #8b949e;
+            --border-color: rgba(0, 240, 255, 0.3);
+            --success-color: #00ff85;
+            --danger-color: #ff0055;
+            --glow-color: rgba(0, 240, 255, 0.15);
+            --scanline-bg: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4" viewBox="0 0 4 4"><path fill="%2300f0ff" fill-opacity="0.05" d="M0 2h4v1H0z"/></svg>');
         }
 
         body {
-            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'VT323', monospace;
             background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.05) 1px, transparent 0);
-            background-size: 40px 40px;
+            background-image: var(--scanline-bg);
             color: var(--text-color);
             margin: 0;
             padding: 20px;
+            backdrop-filter: blur(2px);
         }
         
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        body {
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
         .app-header {
             max-width: 1160px;
             margin: 0 auto 20px auto;
@@ -41,13 +48,22 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
         }
         
-        .app-logo {
-            height: 60px;
-            width: auto;
+        .app-header h1 {
+            font-size: 2.5em;
+            margin: 0;
+            padding: 0;
+            border: none;
+            color: var(--primary-color);
+            text-shadow: 0 0 5px var(--primary-color);
+        }
+        
+        .app-header .author {
+            font-size: 0.9em;
+            color: var(--subtle-text);
         }
 
         .app-container {
@@ -60,6 +76,12 @@
         }
 
         @media (max-width: 900px) { .app-container { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) {
+          .app-header h1 {
+            font-size: 1.8em;
+            text-shadow: 0 0 2px var(--primary-color);
+          }
+        }
 
         .main-content, .sidebar {
             background-color: var(--surface-color);
@@ -102,47 +124,63 @@
         .progression-placeholder { color: var(--subtle-text); font-style: italic; }
 
         .chord-pill {
-            background-color: var(--primary-color); color: white; padding: 8px 15px;
-            border-radius: 20px; font-weight: 500; font-size: 1em; display: flex;
+            background-color: var(--primary-color); color: black; padding: 8px 15px;
+            border-radius: 20px; font-weight: 500; font-size: 1.2em; display: flex;
             align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s;
+            border: 1px solid var(--primary-hover);
         }
         .chord-pill:hover { background-color: var(--primary-hover); transform: translateY(-2px); }
         .chord-name { flex-grow: 1; }
         .remove-chord {
-            background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; width: 20px; height: 20px;
+            background-color: rgba(0, 0, 0, 0.2); border-radius: 50%; width: 20px; height: 20px;
             display: flex; justify-content: center; align-items: center; font-size: 14px;
             font-weight: bold; line-height: 1; flex-shrink: 0; border: none; color: white;
             padding: 0; cursor: pointer; transition: background-color 0.2s;
         }
-        .remove-chord:hover { background-color: rgba(255, 255, 255, 0.2); }
+        .remove-chord:hover { background-color: rgba(0, 0, 0, 0.4); }
 
-        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
-        .btn { 
-            padding: 8px 12px; border: none; border-radius: 5px; font-size: 1em; cursor: pointer;
-            transition: all 0.2s; font-family: 'Poppins', sans-serif;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
+        .controls-container {
+            margin-bottom: 20px;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .btn-save { background-color: var(--success-color); color: white; }
-        .btn-save:hover { background-color: #264653; }
-        .btn-clear { background-color: var(--danger-color); color: white; }
-        .btn-clear:hover { background-color: #f4a261; }
+        .controls { 
+            display: flex; 
+            gap: 10px; 
+        }
+        .controls-info {
+            color: var(--subtle-text);
+            font-size: 1em;
+            margin: 8px 0 0 5px;
+            font-style: italic;
+        }
+
+        .btn { 
+            padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 5px; font-size: 1.2em; cursor: pointer;
+            transition: all 0.2s; font-family: 'VT323', monospace;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            color: var(--text-color); background-color: transparent;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.3); background-color: var(--primary-color); color: black; }
+        .btn-save { border-color: var(--success-color); color: var(--success-color); }
+        .btn-save:hover { background-color: var(--success-color); color: black; }
+        .btn-clear { border-color: var(--danger-color); color: var(--danger-color); }
+        .btn-clear:hover { background-color: var(--danger-color); color: black; }
         #add-chord-btn {
-            background-color: #6c757d;
-            color: white;
+            border-color: #6c757d;
+            color: #6c757d;
         }
         #add-chord-btn:hover {
-             background-color: #5a6268;
+             background-color: #6c757d;
+             color: white;
         }
         .key-selector-container { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
-        #key-selector, .modal-key-selector { padding: 8px; border-radius: 5px; background-color: #333; color: white; border: 1px solid var(--border-color); font-family: 'Poppins', sans-serif;}
+        #key-selector, .modal-key-selector { padding: 8px; border-radius: 5px; background-color: var(--bg-color); color: white; border: 1px solid var(--border-color); font-family: 'VT323', monospace; font-size: 1.2em;}
 
         .chord-selector { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
         .chord-btn {
-            background-color: #2f2f2f; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px;
-            cursor: pointer; transition: all 0.2s; font-weight: 500; border: 1px solid var(--border-color); font-size: 1em;
+            background-color: transparent; color: var(--text-color); padding: 12px 0; text-align: center; border-radius: 5px;
+            cursor: pointer; transition: all 0.2s; font-weight: 500; border: 1px solid var(--border-color); font-size: 1.2em;
         }
-        .chord-btn:hover { background-color: #444; transform: translateY(-2px); }
+        .chord-btn:hover { background-color: var(--primary-color); color: black; transform: translateY(-2px); }
 
         .saved-progressions-list { list-style: none; padding: 0; margin: 0; }
         .saved-item { background-color: #282828; padding: 10px 15px; border-radius: 5px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -152,29 +190,23 @@
 
         .scale-selector { display: flex; flex-direction: column; gap: 10px; }
         .scale-btn {
-            background-color: #2f2f2f; color: var(--text-color); padding: 12px; text-align: left;
+            background-color: transparent; color: var(--text-color); padding: 12px; text-align: left;
             border-radius: 5px; cursor: pointer; transition: all 0.2s;
-            border: 1px solid var(--border-color); font-family: 'Poppins', sans-serif;
+            border: 1px solid var(--border-color); font-family: 'VT323', monospace; font-size: 1.2em;
         }
-        .scale-btn:hover { background-color: #444; transform: translateY(-2px); }
+        .scale-btn:hover { background-color: var(--primary-color); color: black; transform: translateY(-2px); }
         
-        .box-selector { display: flex; justify-content: center; gap: 8px; margin-bottom: 15px; }
-        .box-btn {
-            background-color: #444; border: 1px solid var(--border-color); color: var(--text-color);
-            padding: 6px 12px; border-radius: 5px; cursor: pointer; transition: all 0.2s;
-        }
-        .box-btn.active, .box-btn:hover { background-color: var(--primary-color); border-color: var(--primary-hover); transform: translateY(-1px); }
-
         .modal {
             display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-            overflow: auto; background-color: rgba(0, 0, 0, 0.4); animation: fadeIn 0.3s;
+            overflow: auto; background-color: rgba(0, 0, 0, 0.6); animation: fadeIn 0.3s;
             backdrop-filter: blur(5px);
         }
         .modal-content {
-            background-color: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            margin: 10% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 320px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            margin: 10% auto; padding: 20px; border-radius: 12px; width: 80%; max-width: 850px;
             text-align: center; position: relative; animation: slideIn 0.3s;
+            box-shadow: 0 0 30px var(--glow-color);
         }
         #add-chord-modal .modal-content { max-width: 450px; text-align: left; }
         .modal-controls { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 15px; }
@@ -182,29 +214,89 @@
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
         .form-group input {
             width: 95%; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color);
-            background-color: var(--bg-color); color: var(--text-color); font-family: 'Poppins', sans-serif;
-        }
-        .form-group p.info {
-            font-size: 0.9em;
-            color: var(--subtle-text);
-            margin: 5px 0 0 0;
-            padding-left: 10px;
-            border-left: 2px solid var(--border-color);
+            background-color: var(--bg-color); color: var(--text-color); font-family: 'VT323', monospace;
         }
         .close-button {
             color: #aaa; position: absolute; top: 10px; right: 20px; font-size: 28px;
             font-weight: bold; cursor: pointer; transition: color 0.2s;
         }
         .close-button:hover, .close-button:focus { color: white; }
-        #modal-chord-diagram { margin-top: 15px; }
-        #modal-chord-diagram > img, #modal-chord-diagram > svg { margin: 0 auto; }
+        #modal-chord-diagram { margin-top: 15px; display: flex; justify-content: center; }
+        
+        .info-button {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            cursor: pointer;
+            font-size: 24px;
+            color: var(--subtle-text);
+            transition: color 0.2s;
+        }
+        .info-button:hover {
+            color: var(--primary-color);
+        }
+        .info-panel {
+            display: none;
+            text-align: left;
+            font-size: 1.1em;
+            background-color: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 15px;
+        }
+        .info-panel p { margin-top: 0; }
+        .info-panel ul { padding-left: 20px; }
+        .info-panel .root-note-highlight { color: var(--success-color); font-weight: bold; }
+        .info-panel .scale-note-highlight { color: var(--primary-color); font-weight: bold; }
+        
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @keyframes draw-in {
+          from { stroke-dasharray: 500; stroke-dashoffset: 500; }
+          to { stroke-dasharray: 500; stroke-dashoffset: 0; }
+        }
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .chord-svg .fret-line, .chord-svg .string-line {
+            animation: draw-in 0.5s ease-out forwards;
+            animation-delay: calc(var(--animation-order) * 50ms);
+        }
+        .chord-svg .finger-dot, .chord-svg .barre {
+            transform-origin: center;
+            animation: fade-in 0.3s ease-out 0.5s backwards;
+        }
+        .chord-svg .open-string, .chord-svg .muted-string, .chord-svg .fret-number {
+            animation: fade-in 0.4s ease-out 0.6s backwards;
+        }
+        .chord-svg .finger-dot:hover {
+            fill: var(--primary-hover);
+            filter: drop-shadow(0 0 8px var(--primary-hover));
+            transform: scale(1.1);
+            transition: all 0.2s ease;
+        }
+
+        .scale-svg .scale-note {
+            fill: var(--primary-color);
+            filter: drop-shadow(0 0 4px var(--primary-color));
+            opacity: 0.7;
+            animation: fadeIn 0.5s ease-out;
+        }
+        .scale-svg .root-note {
+            fill: var(--success-color);
+            filter: drop-shadow(0 0 8px var(--success-color));
+            opacity: 1;
+            animation: fadeIn 0.5s ease-out;
+        }
     </style>
 </head>
 <body>
     <header class="app-header">
-        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Chord Architect Logo" class="app-logo">
+        <h1>Chord Architect</h1>
+        <span class="author">By Erin</span>
     </header>
     <div class="app-container">
         <main class="main-content">
@@ -213,15 +305,24 @@
                 <span class="progression-placeholder">Select chords from the right...</span>
             </div>
             <div id="progression-diagrams" class="progression-diagrams"></div>
-            <div class="controls">
-                <button id="save-btn" class="btn btn-save">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                    Save
-                </button>
-                <button id="clear-btn" class="btn btn-clear">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    Clear
-                </button>
+            <div class="controls-container">
+                <div class="controls">
+                    <button id="generate-btn" class="btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+                        Generate
+                    </button>
+                    <button id="save-btn" class="btn btn-save">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                        Save
+                    </button>
+                    <button id="clear-btn" class="btn btn-clear">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        Clear
+                    </button>
+                </div>
+                <p class="controls-info">
+                    The Generate button uses a simple AI to create a new progression based on patterns from common songs.
+                </p>
             </div>
             <hr>
             <h2>Saved Progressions</h2>
@@ -246,12 +347,20 @@
     <div id="chord-modal" class="modal">
         <div class="modal-content">
             <span id="close-modal-btn" class="close-button">&times;</span>
+            <span id="info-btn" class="info-button" style="display: none;">&#9432;</span>
             <h2 id="modal-chord-title"></h2>
             <div class="modal-controls">
-                 <div id="modal-box-selector" class="box-selector"></div>
                  <select id="modal-key-selector" class="modal-key-selector" style="display: none;"></select>
             </div>
             <div id="modal-chord-diagram"></div>
+            <div id="info-panel" class="info-panel" style="display: none;">
+                <p>This is a <strong>Fretboard Heatmap</strong>. It shows every note of the selected scale across the entire neck.</p>
+                <ul>
+                    <li><span class="root-note-highlight">Root Notes (Green):</span> This is your "home base". Start and end your melodies here for a sense of resolution.</li>
+                    <li><span class="scale-note-highlight">Scale Notes (Cyan):</span> These are all the other "safe" notes in the key.</li>
+                </ul>
+                <p><strong>How to Practice:</strong> Try playing horizontally along a single string to learn the scale's sound, or use it as a complete map for improvisation with a backing track.</p>
+            </div>
         </div>
     </div>
     
@@ -269,8 +378,11 @@
                     <input type="text" id="new-chord-title" required>
                 </div>
                 <div class="form-group">
-                    <label>Fret Positions (E-A-D-G-B-e)</label>
-                    <p class="info">Enter the actual fret numbers. For open chords, use 0. For chords higher up the neck, use the real fret number (e.g., 5, 7, etc.). The diagram position will be calculated automatically.</p>
+                    <label for="starting-fret">Starting Fret (Position)</label>
+                    <input type="number" id="starting-fret" value="0" min="0" max="12">
+                </div>
+                <div class="form-group">
+                    <label>Fret Shape (relative to start)</label>
                     <div style="display: flex; gap: 5px;">
                         <input type="number" class="fret-input" required value="-1" style="width: 15%;">
                         <input type="number" class="fret-input" required value="0" style="width: 15%;">
@@ -284,7 +396,7 @@
                     <label><input type="checkbox" id="has-barre"> Has Barre?</label>
                 </div>
                 <div id="barre-details" style="display: none; border-left: 2px solid var(--primary-color); padding-left: 15px;">
-                    <div class="form-group"><label for="barre-fret">Barre Fret:</label><input type="number" id="barre-fret" min="1"></div>
+                    <div class="form-group"><label for="barre-fret">Barre Fret (relative to start):</label><input type="number" id="barre-fret" min="1"></div>
                     <div class="form-group"><label for="barre-from">From String (e.g., 6):</label><input type="number" id="barre-from" min="1" max="6"></div>
                     <div class="form-group"><label for="barre-to">To String (e.g., 1):</label><input type="number" id="barre-to" min="1" max="6"></div>
                 </div>
@@ -302,6 +414,7 @@
             
             const chordSelector = document.getElementById('chord-selector'), progressionDisplay = document.getElementById('progression-display'),
                   progressionDiagrams = document.getElementById('progression-diagrams'), 
+                  generateBtn = document.getElementById('generate-btn'),
                   saveBtn = document.getElementById('save-btn'), clearBtn = document.getElementById('clear-btn'),
                   savedList = document.getElementById('saved-progressions-list'), keySelector = document.getElementById('key-selector'),
                   addChordBtn = document.getElementById('add-chord-btn'), chordModal = document.getElementById('chord-modal'),
@@ -309,11 +422,12 @@
                   modalDiagram = document.getElementById('modal-chord-diagram'), 
                   addChordModal = document.getElementById('add-chord-modal'), closeAddModalBtn = document.getElementById('close-add-modal-btn'),
                   addChordForm = document.getElementById('add-chord-form'), addChordError = document.getElementById('add-chord-error'),
-                  scaleSelector = document.getElementById('scale-selector'), modalKeySelector = document.getElementById('modal-key-selector');
+                  scaleSelector = document.getElementById('scale-selector'), modalKeySelector = document.getElementById('modal-key-selector'),
+                  infoBtn = document.getElementById('info-btn'), infoPanel = document.getElementById('info-panel');
             
             const renderChordButtons = () => {
                 const selectedKey = keySelector.value;
-                const chordsToShow = selectedKey === 'all' ? Object.keys(allChordsData) : DIATONIC_CHORDS[selectedKey];
+                const chordsToShow = selectedKey === 'all' ? Object.keys(allChordsData).sort() : DIATONIC_CHORDS[selectedKey];
                 
                 chordSelector.innerHTML = '';
                 if (chordsToShow) {
@@ -372,9 +486,58 @@
             const removeChordFromProgression = (index) => { currentProgression.splice(index, 1); renderProgression(); };
             const saveCurrentProgression = () => { if (currentProgression.length > 0) { savedProgressions.push([...currentProgression]); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
             const handleSavedListClick = (e) => { const target = e.target.closest('button'); if (!target) return; const index = parseInt(target.dataset.index); if (target.dataset.action === 'load') { currentProgression = [...savedProgressions[index]]; renderProgression(); } else if (target.dataset.action === 'delete') { savedProgressions.splice(index, 1); localStorage.setItem('savedProgressions', JSON.stringify(savedProgressions)); renderSavedProgressions(); } };
-            const openChordModal = async (chordName) => { document.getElementById('modal-box-selector').innerHTML = ''; modalKeySelector.style.display = 'none'; modalTitle.textContent = allChordsData[chordName]?.title || chordName; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; try { const formData = new FormData(); formData.append('chord', chordName); const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
-            const openScaleModal = async (scaleName, key = 'E', box = 'box1') => { const definition = allScalesData[scaleName]; modalTitle.textContent = definition ? `${key} ${definition.title} - Box ${box.slice(-1)}` : `${key} ${scaleName}`; modalDiagram.innerHTML = 'Loading...'; chordModal.style.display = 'block'; const boxSelector = document.getElementById('modal-box-selector'); boxSelector.innerHTML = ''; if (definition?.pattern) { Object.keys(definition.pattern).forEach(boxKey => { const button = document.createElement('button'); button.className = `box-btn ${boxKey === box ? 'active' : ''}`; button.textContent = `Box ${boxKey.slice(-1)}`; button.onclick = () => openScaleModal(scaleName, key, boxKey); boxSelector.appendChild(button); }); } modalKeySelector.style.display = 'inline-block'; modalKeySelector.innerHTML = ''; ALL_KEYS.forEach(k => { const option = document.createElement('option'); option.value = k; option.textContent = k; if (k === key) option.selected = true; modalKeySelector.appendChild(option); }); modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value, box); try { const formData = new FormData(); formData.append('scale', scaleName); formData.append('key', key); formData.append('box', box); const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData }); if (!response.ok) throw new Error(await response.text()); modalDiagram.innerHTML = await response.text(); } catch (error) { modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; } };
-            const closeModal = () => { chordModal.style.display = 'none'; };
+            
+            const openChordModal = async (chordName) => { 
+                infoBtn.style.display = 'none'; 
+                infoPanel.style.display = 'none';
+                modalKeySelector.style.display = 'none'; 
+                modalTitle.textContent = allChordsData[chordName]?.title || chordName; 
+                modalDiagram.innerHTML = 'Loading...'; 
+                chordModal.style.display = 'block'; 
+                try { 
+                    const formData = new FormData(); 
+                    formData.append('chord', chordName); 
+                    const response = await fetch('/api/chord-diagram', { method: 'POST', body: formData }); 
+                    if (!response.ok) throw new Error(await response.text()); 
+                    modalDiagram.innerHTML = await response.text(); 
+                } catch (error) { 
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; 
+                } 
+            };
+            
+            const openScaleModal = async (scaleName, key = 'E') => { 
+                infoBtn.style.display = 'block';
+                const definition = allScalesData[scaleName]; 
+                modalTitle.textContent = definition ? `${key} ${definition.title}` : `${key} ${scaleName}`; 
+                modalDiagram.innerHTML = 'Loading...'; 
+                chordModal.style.display = 'block'; 
+                modalKeySelector.style.display = 'inline-block'; 
+                modalKeySelector.innerHTML = ''; 
+                ALL_KEYS.forEach(k => { 
+                    const option = document.createElement('option'); 
+                    option.value = k; 
+                    option.textContent = k; 
+                    if (k === key) option.selected = true; 
+                    modalKeySelector.appendChild(option); 
+                }); 
+                modalKeySelector.onchange = (e) => openScaleModal(scaleName, e.target.value); 
+                try { 
+                    const formData = new FormData(); 
+                    formData.append('scale', scaleName); 
+                    formData.append('key', key); 
+                    const response = await fetch('/api/scale-diagram', { method: 'POST', body: formData }); 
+                    if (!response.ok) throw new Error(await response.text()); 
+                    modalDiagram.innerHTML = await response.text(); 
+                } catch (error) { 
+                    modalDiagram.innerHTML = `<p style="color: var(--danger-color);">Could not load diagram. ${error.message}</p>`; 
+                } 
+            };
+            
+            const closeModal = () => { 
+                chordModal.style.display = 'none'; 
+                infoPanel.style.display = 'none'; 
+            };
+            
             const initializeApp = async () => {
                 try {
                     const [chordsResponse, scalesResponse] = await Promise.all([fetch('/api/chords'), fetch('/api/scales')]);
@@ -392,23 +555,80 @@
                     chordSelector.innerHTML = `<p style="color: var(--danger-color);">Could not load app data.</p>`;
                 }
             };
+
+            const handleGenerateClick = async () => {
+                const firstChord = currentProgression.length > 0 ? currentProgression[0] : 'C';
+                const response = await fetch(`/api/generate-progression?start_chord=${firstChord}&length=4`);
+                const newProgression = await response.json();
+                currentProgression = newProgression;
+                renderProgression();
+            };
             
             keySelector.addEventListener('change', renderChordButtons);
             
             chordSelector.addEventListener('click', e => e.target.classList.contains('chord-btn') && addChordToProgression(e.target.dataset.chord));
             scaleSelector.addEventListener('click', e => e.target.classList.contains('scale-btn') && openScaleModal(e.target.dataset.scale));
             progressionDisplay.addEventListener('click', e => { const pill = e.target.closest('.chord-pill'); if (e.target.classList.contains('remove-chord')) removeChordFromProgression(parseInt(e.target.dataset.index)); else if (pill) openChordModal(pill.dataset.chordName); });
+            generateBtn.addEventListener('click', handleGenerateClick);
             saveBtn.addEventListener('click', saveCurrentProgression);
             clearBtn.addEventListener('click', () => { currentProgression = []; renderProgression(); });
             savedList.addEventListener('click', handleSavedListClick);
             closeModalBtn.addEventListener('click', closeModal);
             window.addEventListener('click', e => e.target == chordModal && closeModal());
             
+            infoBtn.addEventListener('click', () => {
+                infoPanel.style.display = infoPanel.style.display === 'block' ? 'none' : 'block';
+            });
+            
             const addChordModalEl = document.getElementById('add-chord-modal');
             addChordBtn.addEventListener('click', () => { addChordForm.reset(); addChordError.textContent = ''; document.getElementById('barre-details').style.display = 'none'; addChordModalEl.style.display = 'block'; });
             document.getElementById('close-add-modal-btn').addEventListener('click', () => addChordModalEl.style.display = 'none');
             document.getElementById('has-barre').addEventListener('change', e => { document.getElementById('barre-details').style.display = e.target.checked ? 'block' : 'none'; });
-            addChordForm.addEventListener('submit', async e => { e.preventDefault(); addChordError.textContent = ''; const frets = Array.from(document.querySelectorAll('.fret-input')).map(input => parseInt(input.value, 10)); const barres = document.getElementById('has-barre').checked ? [{ fret: parseInt(document.getElementById('barre-fret').value, 10), fromString: parseInt(document.getElementById('barre-from').value, 10), toString: parseInt(document.getElementById('barre-to').value, 10) }] : []; const payload = { name: document.getElementById('new-chord-name').value, title: document.getElementById('new-chord-title').value, frets, barres }; try { const response = await fetch('/api/chords', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!response.ok) throw new Error(await response.text()); addChordModalEl.style.display = 'none'; await initializeApp(); } catch (error) { addChordError.textContent = `Error: ${error.message}`; } });
+
+            // --- MODIFIED: Form submission logic now calculates absolute frets ---
+            addChordForm.addEventListener('submit', async e => {
+                e.preventDefault();
+                addChordError.textContent = '';
+
+                const position = parseInt(document.getElementById('starting-fret').value, 10) || 0;
+                
+                const relativeFrets = Array.from(document.querySelectorAll('.fret-input')).map(input => parseInt(input.value, 10));
+                
+                const absoluteFrets = relativeFrets.map(fret => {
+                    if (fret <= 0) return fret; // Keep muted (-1) and open (0) strings as they are
+                    return position + fret - 1; // E.g., position 5, relative fret 1 becomes absolute fret 5
+                });
+                
+                const barres = [];
+                if (document.getElementById('has-barre').checked) {
+                    const relativeBarreFret = parseInt(document.getElementById('barre-fret').value, 10);
+                    barres.push({
+                        fret: position + relativeBarreFret - 1,
+                        fromString: parseInt(document.getElementById('barre-from').value, 10),
+                        toString: parseInt(document.getElementById('barre-to').value, 10)
+                    });
+                }
+
+                const payload = {
+                    name: document.getElementById('new-chord-name').value,
+                    title: document.getElementById('new-chord-title').value,
+                    frets: absoluteFrets,
+                    barres: barres
+                };
+
+                try {
+                    const response = await fetch('/api/chords', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (!response.ok) throw new Error(await response.text());
+                    addChordModalEl.style.display = 'none';
+                    await initializeApp();
+                } catch (error) {
+                    addChordError.textContent = `Error: ${error.message}`;
+                }
+            });
 
             initializeApp();
         });
