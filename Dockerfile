@@ -11,6 +11,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Explicitly copy the application and the templates folder
 COPY app.py .
 COPY templates ./templates/
+COPY static ./static/
 
 # --- MODIFIED: Added --chdir flag to the CMD instruction ---
 CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--chdir", "/app", "app:app"]
